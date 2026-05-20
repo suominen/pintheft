@@ -116,6 +116,75 @@ One-time setup (from the primary checkout at `~/src/pintheft`):
 git worktree add -b auto-update ~/src/auto-update/pintheft main
 ```
 
+The systemd units ship in `systemd/`. They are not in a standard unit
+search path, so wiring the timer means symlinking both units into
+`~/.config/systemd/user/` and then enabling the timer. Use `ln -sr` so
+the links are relative — they survive the home directory being moved or
+mounted at a different path:
+
+```
+ln -sr ~/src/pintheft/systemd/pintheft-tracker-update.service \
+       ~/src/pintheft/systemd/pintheft-tracker-update.timer \
+       ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now pintheft-tracker-update.timer
+```
+
+## Tearing down the auto-update
+
+To stop the scheduled refresh entirely, unwire it in this order — the
+sequence matters, because `systemctl disable` needs the unit definition
+to still be resolvable when it runs.
+
+1. **Disable the timer first**, while the unit symlinks are still in
+   place. This stops the timer and removes the `enable` symlink that
+   lives in `~/.config/systemd/user/timers.target.wants/`:
+
+   ```
+   systemctl --user disable --now pintheft-tracker-update.timer
+   ```
+
+2. **Remove the unit-definition symlinks** from the search path:
+
+   ```
+   rm ~/.config/systemd/user/pintheft-tracker-update.timer \
+      ~/.config/systemd/user/pintheft-tracker-update.service
+   ```
+
+3. **Reload** so the running user manager drops the units:
+
+   ```
+   systemctl --user daemon-reload
+   ```
+
+4. `systemctl --user status pintheft-tracker-update.timer` should now
+   exit non-zero with "could not be found" — that is the expected clean
+   end state, not an error.
+
+If the definition symlinks were removed *before* disabling, `disable`
+can no longer resolve the unit by name and the stale `enable` symlink is
+left behind, parking the timer in a `failed` state. Recover by deleting
+that symlink directly, then reloading and clearing the failed residue:
+
+```
+rm ~/.config/systemd/user/timers.target.wants/pintheft-tracker-update.timer
+systemctl --user daemon-reload
+systemctl --user reset-failed pintheft-tracker-update.timer
+```
+
+Finally, remove the worktree and its branch (run from the primary
+checkout at `~/src/pintheft`):
+
+```
+git worktree remove ~/src/auto-update/pintheft
+git branch -d auto-update
+```
+
+`git worktree remove` refuses if the worktree has uncommitted changes;
+`git branch -d` refuses if `auto-update` holds commits not merged into
+`main`. Merge or discard that work first, or force with `-D` only once
+you are sure nothing on `auto-update` is worth keeping.
+
 ## Local kernel clones for git.kernel.org
 
 git.kernel.org's cgit HTML pages (any URL ending in /log/, /tree/,
