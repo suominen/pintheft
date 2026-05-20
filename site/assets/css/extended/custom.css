@@ -19,6 +19,15 @@
   font-size: 0.85em;
 }
 
+/* The references table's second column holds raw URLs — long unbroken
+   strings with no natural break points (the Salsa patch link especially).
+   Let them wrap inside the cell instead of forcing the column wide.
+   overflow-wrap: anywhere (rather than break-word) also lets the column
+   shrink to a sensible min-content width. */
+.post-content table.references td {
+  overflow-wrap: anywhere;
+}
+
 .post-content td {
   vertical-align: top;
   text-align: left;
