@@ -20,14 +20,14 @@
 }
 
 /* References table column behaviour:
-   - Source (col 1) gets a fixed 40% share so it stays a comfortable
+   - Source (col 1) gets a fixed 33% share so it stays a comfortable
      width; it wraps at spaces but not mid-word.
    - URL (col 2) takes the rest; overflow-wrap: anywhere lets its long
      unbroken URLs (the Salsa patch link especially) break inside the
      cell rather than forcing the column wide. */
 .post-content table.references th:first-child,
 .post-content table.references td:first-child {
-  width: 40%;
+  width: 33%;
 }
 .post-content table.references td:nth-child(2) {
   overflow-wrap: anywhere;
