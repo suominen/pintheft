@@ -24,6 +24,17 @@
   text-align: left;
 }
 
+/* Status cells (tagged by extend_footer.html — those starting with a
+   status emoji) get a hanging indent: the emoji sits in a fixed left
+   gutter and wrapped text indents past it, so the emoji column stays
+   visually scannable. The 13px matches PaperMod's table-cell padding,
+   keeping the emoji aligned with the column header. !important beats
+   PaperMod's higher-specificity cell-padding rule. */
+.post-content td.status {
+  padding-left: calc(13px + 1.6em) !important;
+  text-indent: -1.6em;
+}
+
 .post-content th {
   vertical-align: bottom;
   text-align: left;

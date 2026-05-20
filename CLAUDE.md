@@ -38,7 +38,7 @@ looked, that's likely why — re-read before assuming stale state.
 │   ├── assets/pintheft-tracker.svg        # social-banner source (rasterised by `make banner`)
 │   ├── static/pintheft-tracker.png        # rendered OpenGraph banner (committed)
 │   ├── layouts/partials/post_meta.html    # overrides PaperMod: adds labels + lastmod
-│   ├── layouts/partials/extend_footer.html # client-side table compaction + code-copy
+│   ├── layouts/partials/extend_footer.html # client-side table compaction + status tagging + code-copy
 │   └── go.mod, go.sum                     # Hugo Modules — pulls PaperMod theme
 ├── scripts/                               # auto-update agent: prompt + driver
 │   ├── auto-update                        # wrapper invoked by the systemd timer

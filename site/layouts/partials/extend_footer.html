@@ -18,6 +18,16 @@
             }
         }
     });
+
+    // Tag status cells — those whose text starts with a status emoji —
+    // so custom.css can give them a hanging indent. The emoji then stays
+    // in a clean left gutter and wrapped text indents past it, instead of
+    // wrapping back under the emoji.
+    document.querySelectorAll('.post-content table td').forEach((cell) => {
+        if (/^\s*[✅❌❔⚠➖]/.test(cell.textContent)) {
+            cell.classList.add('status');
+        }
+    });
 </script>
 
 {{- if (.Param "ShowCodeCopyButtons") }}

@@ -118,10 +118,15 @@ destination were retargeted.
 - **rsync `--delete`** removes server-side files not present in the
   build output.  Don't store unrelated content under
   `htdocs/pintheft/` — `make dist` will erase it.
-- **Client-side table compaction.** `layouts/partials/extend_footer.html`
-  rewrites tables in the browser to collapse consecutive duplicate
-  first-column cells via `rowSpan`.  The Markdown source still has those
-  cells; only the rendered DOM is compacted.
+- **Client-side table tweaks.** `layouts/partials/extend_footer.html`
+  rewrites tables in the browser: it collapses consecutive duplicate
+  first-column cells via `rowSpan`, and tags cells whose text starts
+  with a status emoji with `class="status"` so `custom.css` can
+  hang-indent them (keeping the emoji in a scannable left gutter when
+  the cell wraps).  The Markdown source is unchanged; only the rendered
+  DOM is.  With JavaScript disabled both tweaks are simply skipped — the
+  table still renders correctly, just un-compacted and with the status
+  emoji inline.
 
 ## Social banner
 
