@@ -1,0 +1,107 @@
+<script>
+    document.querySelectorAll('.post-content table').forEach((table) => {
+        const rows = table.tBodies[0]?.rows;
+        if (!rows || rows.length < 2) return;
+        let anchor = rows[0].cells[0];
+        if (!anchor) return;
+        let span = 1;
+        for (let i = 1; i < rows.length; i++) {
+            const cell = rows[i].cells[0];
+            if (!cell) continue;
+            if (cell.textContent.trim() === anchor.textContent.trim()) {
+                cell.remove();
+                span += 1;
+                anchor.rowSpan = span;
+            } else {
+                anchor = cell;
+                span = 1;
+            }
+        }
+    });
+</script>
+
+{{- if (.Param "ShowCodeCopyButtons") }}
+<script>
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function makeSvgIcon(type) {
+        const svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', type === 'copy' ? '2' : '2.5');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        svg.setAttribute('aria-hidden', 'true');
+
+        if (type === 'copy') {
+            const rect = document.createElementNS(SVG_NS, 'rect');
+            rect.setAttribute('x', '9'); rect.setAttribute('y', '2');
+            rect.setAttribute('width', '13'); rect.setAttribute('height', '13');
+            rect.setAttribute('rx', '2'); rect.setAttribute('ry', '2');
+            svg.appendChild(rect);
+            const path = document.createElementNS(SVG_NS, 'path');
+            path.setAttribute('d', 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1');
+            svg.appendChild(path);
+        } else {
+            const poly = document.createElementNS(SVG_NS, 'polyline');
+            poly.setAttribute('points', '20 6 9 17 4 12');
+            svg.appendChild(poly);
+        }
+        return svg;
+    }
+
+    function setButtonState(btn, state) {
+        const label = state === 'copy'
+            ? '{{- i18n "code_copy" | default "Copy code" }}'
+            : '{{- i18n "code_copied" | default "Copied!" }}';
+        btn.replaceChildren(makeSvgIcon(state));
+        btn.title = label;
+        btn.setAttribute('aria-label', label);
+    }
+
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        setButtonState(copybutton, 'copy');
+
+        function copyingDone() {
+            setButtonState(copybutton, 'copied');
+            setTimeout(() => setButtonState(copybutton, 'copy'), 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            // td containing LineNos
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+{{- end }}

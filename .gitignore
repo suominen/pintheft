@@ -1,0 +1,19 @@
+# Claude Code local state
+.claude/
+
+# direnv cache
+.direnv/
+
+# Nix build outputs
+result
+result-*
+
+# Hugo build artifacts
+.hugo_build.lock
+site/_vendor/
+site/public/
+site/resources/
+
+# Editor / OS
+*~
+.DS_Store

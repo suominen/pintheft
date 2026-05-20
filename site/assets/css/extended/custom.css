@@ -1,0 +1,41 @@
+:root {
+  --main-width: 1200px;
+  --nav-width: var(--main-width);
+}
+
+.post-content h2 {
+  border-top: 3px solid var(--primary);
+  margin-top: 2rem;
+  padding-top: 0.6rem;
+}
+
+.post-content h3 {
+  border-top: 1px solid var(--border);
+  margin-top: 1.5rem;
+  padding-top: 0.4rem;
+}
+
+.post-content table.references {
+  font-size: 0.85em;
+}
+
+.post-content td {
+  vertical-align: top;
+  text-align: left;
+}
+
+.post-content th {
+  vertical-align: bottom;
+  text-align: left;
+}
+
+.copy-code {
+  padding: 4px;
+  align-items: center;
+  line-height: 1;
+}
+
+div.highlight:hover .copy-code,
+pre:hover .copy-code {
+  display: flex;
+}

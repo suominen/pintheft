@@ -1,0 +1,91 @@
+You are running headless from cron to refresh the PinTheft patch tracker.
+The wrapper has already fetched origin and checked out the auto-update
+branch with origin/main merged forward.
+
+PinTheft is a Linux kernel local privilege escalation: an RDS (Reliable
+Datagram Sockets) zero-copy double-free in net/rds/message.c, turned into
+a page-cache overwrite of a SUID-root binary via io_uring fixed buffers.
+It was disclosed on oss-security on 2026-05-19. No CVE has been assigned
+yet — the tracker uses the placeholder CVE-2026-XXXXX.
+
+References:
+- Public PoC: https://github.com/v12-security/pocs/tree/main/pintheft
+- oss-security disclosure: https://www.openwall.com/lists/oss-security/2026/05/19/6
+- Fix part 1 (44b550d88b26): https://lore.kernel.org/netdev/d2ea98a6313d5467bac00f7c9fef8c7acddb9258.1777550074.git.tonanli66@gmail.com/
+- Fix part 2 (e17492979319): https://lore.kernel.org/netdev/20260505234336.2132721-1-achender@kernel.org/
+
+Variant status, fix-merged commits, and per-branch fixed versions all
+live in site/content/_index.md (the canonical tracker). Read it first
+rather than relying on anything cached here.
+
+1. Read CLAUDE.md to learn the project conventions, then read
+   site/content/_index.md (the canonical tracker).
+
+2. Re-verify each entry currently marked vulnerable (:x:), partial
+   (:warning:), or unverified (:grey_question:).
+
+   Note on git.kernel.org and lore.kernel.org: cgit HTML pages and
+   lore message pages are Anubis-gated and WebFetch hits the no-JS
+   challenge. Use the persistent local kernel clones under ~/src/linux/
+   for the kernel-tree checks — refresh with `git fetch`, inspect via
+   the `origin/...` remote-tracking refs:
+
+     ~/src/linux/stable   — stable/linux.git
+     ~/src/linux/net      — netdev/net.git
+
+   (Setup is documented in CLAUDE.md; if either clone is missing, fail
+   loudly rather than guessing.) Plain-text kernel.org endpoints
+   (e.g. /finger_banner) are still WebFetch-able.
+
+   a. Upstream stable kernels: GET https://www.kernel.org/finger_banner
+      for the current point release per stable tree, then for each
+      branch in the tracker's *Upstream fixed versions* table check
+      whether a backport of the fix has landed:
+        git -C ~/src/linux/stable fetch --quiet --all --tags
+        git -C ~/src/linux/stable log --oneline \
+          origin/linux-<series>.y -- net/rds/message.c
+      Look for backports of 44b550d88b26 ("handle zerocopy send cleanup
+      before the message is queued") and e17492979319 ("reset op_nents
+      when zerocopy page pin fails"). The complete fix is BOTH commits.
+
+   b. netdev/net.git for any further RDS fixes:
+        git -C ~/src/linux/net fetch --quiet
+        git -C ~/src/linux/net log --oneline origin/main -- net/rds/
+
+   c. Once a CVE is assigned, switch the tracker's placeholder
+      CVE-2026-XXXXX to the real ID and add the CVE-keyed feeds
+      (NVD, MITRE CVE Awg JSON, Red Hat JSON, FIRST EPSS, CISA KEV).
+      Watch the oss-security thread for the assignment:
+      https://www.openwall.com/lists/oss-security/2026/05/19/
+
+   d. Per-distro checks — the deciding question is whether RDS is built
+      and reachable, not the kernel version:
+      - Rocky/RHEL: RHEL family ships `# CONFIG_RDS is not set` (not
+        affected). Re-confirm via the r10/r9/r8 kernel configs in
+        https://git.rockylinux.org/ only if something suggests a change.
+      - Debian: https://security-tracker.debian.org/tracker/ (search for
+        a CVE once assigned) and the kernel config per suite.
+      - NixOS: https://tracker.security.nixos.org/ and the channel
+        pointers in CLAUDE.md.
+      - Amazon Linux: https://alas.aws.amazon.com/ — AL2023 and AL2
+        kernel-config status is still unverified; resolve if you can
+        find a canonical config.
+      - Arch: https://security.archlinux.org/
+      - Proxmox: https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/
+
+3. Edit site/content/_index.md to reflect any changes per the
+   conventions in CLAUDE.md (status badges, fixed-version recording, and
+   the `## Verification log` update rules). If you make content changes,
+   bump the `lastmod` date in the front-matter. If nothing changed,
+   leave the file alone — don't bump `lastmod` on a no-op run.
+
+4. If you made changes, commit them on the current branch (which is
+   `auto-update` — the wrapper has already switched to it and merged
+   origin/main forward). Do NOT create a new branch, do NOT switch
+   branches, do NOT push, and do NOT open a PR. The user merges
+   auto-update into main manually. If nothing changed, exit without
+   committing.
+
+If you hit unexpected errors or substantive changes you can't
+confidently encode, commit your best attempt and note open questions in
+the commit message.

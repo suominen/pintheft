@@ -1,0 +1,10 @@
+[Unit]
+Description=Update PinTheft tracker via Claude Code
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/src/auto-update/pintheft
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/src/auto-update/pintheft/scripts/auto-update
+StandardOutput=journal
+StandardError=journal

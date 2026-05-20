@@ -1,0 +1,41 @@
+#!/bin/sh
+# Local cron-driven PinTheft tracker auto-update.
+# Triggered by ~/.config/systemd/user/pintheft-tracker-update.timer.
+# Logs land in the user journal:
+#   journalctl --user -u pintheft-tracker-update
+#
+# Runs in the dedicated worktree at ~/src/auto-update/pintheft,
+# checked out on branch `auto-update`. Each run merges origin/main
+# forward into auto-update and lets headless Claude commit any updates
+# back onto auto-update only. Merges of auto-update -> main are manual.
+
+set -euo pipefail
+
+REPO="$(realpath "$(dirname "${0}")/..")"
+cd "${REPO}"
+
+git fetch --quiet origin
+
+if [ -n "$(git status --porcelain)" ]
+then
+  echo 'Working tree dirty; refusing to run. Clean it up and retry.' 1>&2
+  exit 1
+fi
+
+git switch --quiet auto-update
+git merge --quiet --no-edit origin/main
+
+# Headless run. Permission scope (Read/Edit the tracker, WebFetch the
+# sources, git + date for the commit step) goes in --settings JSON
+# because --allowed-tools on the CLI silently ignores Bash patterns.
+# `default` mode under -p with no TTY refuses anything outside the
+# allowlist without prompting. The prompt forbids push and PR creation,
+# and `gh` is not in the tool list anyway.
+exec claude -p \
+  --model claude-sonnet-4-6 \
+  --permission-mode default \
+  --settings '{"permissions":{"allow":["Read","Edit","WebFetch","Bash(git:*)","Bash(date:*)"]}}' \
+  --output-format text \
+  --no-session-persistence \
+  --max-budget-usd 3 \
+  < scripts/auto-update-prompt.txt
