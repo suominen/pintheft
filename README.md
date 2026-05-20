@@ -27,7 +27,7 @@ PaperMod theme).
 ### With Nix (recommended)
 
 ```sh
-nix develop          # shell with hugo + go + git
+nix develop          # dev shell: hugo, go, git, resvg
 cd site
 hugo server          # local preview at http://localhost:1313/pintheft/
 ```
@@ -59,7 +59,7 @@ editing `site/assets/pintheft-tracker.svg`; the rendered PNG is committed.
 
 ```
 .
-├── flake.nix              # Nix dev environment (hugo + go + git)
+├── flake.nix              # Nix dev environment (hugo, go, git, resvg + RPM tools)
 ├── .envrc                 # direnv hook → `use flake`
 ├── .gitignore
 ├── Makefile               # `make build`, `make dist`

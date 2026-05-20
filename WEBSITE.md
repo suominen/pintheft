@@ -14,8 +14,10 @@ tracker; only the content and a few config strings differ.
   single page at `site/content/_index.md`.
 - **Theme:** PaperMod, integrated as a Hugo Module (no submodule).  See
   `site/hugo.toml` and `site/go.mod`.
-- **Dev environment:** Nix flake (`flake.nix`) provides hugo + go + git.
-  Auto-activates via `.envrc` if direnv is installed.
+- **Dev environment:** Nix flake (`flake.nix`) provides hugo + go + git
+  + resvg (for `make banner`) + curl/libarchive/zstd (the auto-update
+  agent's RPM-unpacking tools).  Auto-activates via `.envrc` if direnv
+  is installed.
 - **Build:** `make build` → `hugo --minify --gc --cleanDestinationDir`,
   output in `site/public/`.
 - **Publish:** `make dist` → `rsync -avz --delete site/public/`
@@ -69,7 +71,7 @@ destination were retargeted.
 
 ### 3. Local dev — done
 
-- [x] `flake.nix` provides hugo + go + git.
+- [x] `flake.nix` provides hugo + go + git + resvg + RPM-unpacking tools.
 - [x] `.envrc` for direnv auto-activation (`direnv allow` once).
 - [x] `README.md` documents the workflow.
 
