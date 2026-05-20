@@ -105,13 +105,26 @@ with a Roboto face.
 
 - `:white_check_mark:` — either the fix is confirmed present in the
   package changelog (not merely announced), **or** the distribution is
-  not affected at all (`# CONFIG_RDS is not set`).
-- `:x:` — vulnerable: RDS is built and reachable and no fix has shipped.
+  not affected at all (`# CONFIG_RDS is not set`, or the kernel predates
+  the vulnerable code).  Reserved for *fixed* or *not affected* — a
+  mitigation that only blocks the autoload does not qualify (use
+  `:warning:`).
+- `:x:` — vulnerable: RDS is built **and** an unprivileged user can
+  reach it (autoloads on demand, with no blacklist or autoload-disabling
+  kernel patch), and no fix has shipped.
 - `:grey_question:` — status not yet verified (kernel config or advisory
   not yet inspected).
-- `:warning:` — a fix is staged but not yet in the user-facing channel
-  (e.g. merged to mainline but not in a stable point release, or a DSA
-  issued but the package not yet in the security repo).
+- `:warning:` — not fully resolved, in one of two ways: **(a)** a fix is
+  staged but not yet in the user-facing channel — merged to mainline but
+  not in a stable point release, a DSA issued but the package not yet in
+  the security repo, or an incomplete backport (`44b550d88b26` landed,
+  `e17492979319` pending); or **(b)** the vulnerable RDS code is still
+  built and unpatched, but a distro-default mitigation blocks the
+  unprivileged `net-pf-21` autoload (a kernel patch dropping the
+  `MODULE_ALIAS_NETPROTO`, or a `modprobe.d` drop-in), so the PoC's
+  entry point is closed by default.  A mitigation is *not* a fix — the
+  bug stays exploitable once `rds` is loaded by other means, so it never
+  earns `:white_check_mark:`.
 - Record the fixed package version, the date it became available, and
   the source of confirmation (changelog entry, advisory URL, commit
   hash).

@@ -107,6 +107,13 @@ on the `SO_RDS_TRANSPORT=2` (`RDS_TRANS_TCP`) socket option autoloading
 `rds_tcp`; distributions that block unprivileged module autoloading
 raise the bar accordingly.
 
+A distro that blocks that autoload by default — via a kernel patch or a
+`modprobe.d` drop-in — is marked **mitigated, not fixed**
+(:warning:): the double-free is still built and stays exploitable once
+`rds` is loaded by other means (an administrator `modprobe`, or a
+workload that uses RDS).  A mitigation reduces exposure; it is not a
+fix, and it does not earn a :white_check_mark:.
+
 ### Debian
 
 Debian ships the RDS subsystem as a module (`CONFIG_RDS=m`,
@@ -114,19 +121,29 @@ Debian ships the RDS subsystem as a module (`CONFIG_RDS=m`,
 
 | Release | RDS | Status |
 |---|---|---|
-| Debian 13 (trixie) | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
-| Debian 12 (bookworm) | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
-| Debian 11 (bullseye) | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
+| Debian 13 (trixie) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
+| Debian 12 (bookworm) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
+| Debian 11 (bullseye) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
 
 `CONFIG_RDS=m` on Debian 11 and 13 was confirmed by direct kernel-config
 inspection; Debian 12 carries the same long-standing module setting.
 
-Debian additionally carries a kernel patch that disables on-demand
-autoloading of the RDS protocol family for unprivileged users, which
-blunts the PoC's `SO_RDS_TRANSPORT=2` autoload trigger.  That is a
-hardening measure, not a fix for the double-free — treat it as
-defence-in-depth and still apply the modprobe blacklist.  No DSA/DLA has
-been issued for PinTheft as of 2026-05-20.
+Debian carries a long-standing kernel patch
+([`rds-Disable-auto-loading-as-mitigation-against-local.patch`][debian-rds-patch],
+Ben Hutchings, 2010) that comments out `MODULE_ALIAS_NETPROTO(PF_RDS)`
+in `net/rds/af_rds.c`.  With no `net-pf-21` module alias, an
+unprivileged `socket(AF_RDS, …)` cannot autoload `rds`, so the PoC's
+`SO_RDS_TRANSPORT=2` autoload trigger is closed **by default** — and
+more firmly than a `modprobe.d` drop-in, since it is compiled into the
+kernel binary.  The patch is present in the kernel `series` of every
+tracked suite (`debian/latest` for sid/forky, and the trixie, bookworm,
+and bullseye security branches).
+
+This is a mitigation, not a fix: the double-free in `net/rds/message.c`
+is still built and is exploitable on a Debian host once `rds` is loaded
+by other means (an administrator `modprobe`, or a workload that uses
+RDS).  No DSA/DLA carrying the upstream fix has been issued for PinTheft
+as of 2026-05-20.
 
 ### Proxmox Virtual Environment
 
@@ -165,8 +182,8 @@ autoload-driven entry is blocked by default.
 
 | Channel | RDS | Status |
 |---|---|---|
-| `nixos-unstable` | `CONFIG_RDS=m` | :white_check_mark: Mitigated by default — `net-pf-21` autoload blocked via `ubuntu.conf` |
-| `nixos-25.11` | `CONFIG_RDS=m` (expected) | :white_check_mark: Mitigated by default — same modprobe defaults; kernel config shared with `nixos-unstable` |
+| `nixos-unstable` | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — `net-pf-21` autoload blocked via `ubuntu.conf`; double-free unpatched |
+| `nixos-25.11` | `CONFIG_RDS=m` (expected) | :warning: Mitigated, not fixed — same modprobe defaults as `nixos-unstable`; double-free unpatched |
 
 This is defence-in-depth, not a fix — the vulnerable RDS code is still
 built.  A NixOS host is still exposed if `rds` is already loaded (an
@@ -254,7 +271,7 @@ two deliberate administrative actions.
 
 | Release | RDS | Status |
 |---|---|---|
-| Fedora (current) | `CONFIG_RDS=m`, in `kernel-modules-extra` + blacklisted | :white_check_mark: Low exposure — vulnerable code present but not reachable in a default install |
+| Fedora (current) | `CONFIG_RDS=m`, in `kernel-modules-extra` + blacklisted | :warning: Mitigated, not fixed — module in `kernel-modules-extra` + blacklisted; not reachable in a default install |
 
 Source: Jelle van der Waa, [oss-security][oss-sec-fedora].  This is
 defence-in-depth, not a fix — a Fedora host that has installed
@@ -444,8 +461,12 @@ echo 1 > /proc/sys/vm/drop_caches
 ### Distributions
 
 - **Debian:** `CONFIG_RDS=m` confirmed for Debian 11 and 13 by direct
-  kernel-config inspection; Debian 12 carries the same setting.  No
-  DSA/DLA issued for PinTheft as of 2026-05-20.
+  kernel-config inspection; Debian 12 carries the same setting.  The
+  RDS autoload-disable patch (`MODULE_ALIAS_NETPROTO(PF_RDS)` commented
+  out in `net/rds/af_rds.c`) was confirmed present in the kernel patch
+  `series` of the `debian/latest` (sid/forky), trixie, bookworm, and
+  bullseye branches on Salsa.  No DSA/DLA carrying the upstream fix has
+  been issued for PinTheft as of 2026-05-20.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9; PVE 8 not yet
   inspected.
 - **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
@@ -482,6 +503,7 @@ echo 1 > /proc/sys/vm/drop_caches
 | [Fix commit `44b550d88b26` (Linus tree)][fix-1] | <https://git.kernel.org/linus/44b550d88b267320459d518c0743a241ab2108fa> |
 | [Fix commit `e17492979319` (Linus tree)][fix-2] | <https://git.kernel.org/linus/e174929793195e0cd6a4adb0cad731b39f9019b4> |
 | [Introducing commit `0cebaccef3ac` (Linus tree)][rds-introduced] | <https://git.kernel.org/linus/0cebaccef3acbdfbc2d85880a2efb765d2f4e2e3> |
+| [Debian RDS autoload-disable patch (Salsa)][debian-rds-patch] | <https://salsa.debian.org/kernel-team/linux/-/blob/debian/6.12/trixie-security/debian/patches/debian/rds-Disable-auto-loading-as-mitigation-against-local.patch> |
 | [Rocky Linux kernel dist-git (`r8` / `r9` / `r10`)][rocky-kernel-config] | <https://git.rockylinux.org/staging/rpms/kernel> |
 | [stable kernel releases][kernel-releases] | <https://www.kernel.org/category/releases.html> |
 {.references}
@@ -496,5 +518,6 @@ echo 1 > /proc/sys/vm/drop_caches
 [fix-1-patch]:      https://lore.kernel.org/netdev/d2ea98a6313d5467bac00f7c9fef8c7acddb9258.1777550074.git.tonanli66@gmail.com/
 [fix-2-patch]:      https://lore.kernel.org/netdev/20260505234336.2132721-1-achender@kernel.org/
 [rds-introduced]:   https://git.kernel.org/linus/0cebaccef3acbdfbc2d85880a2efb765d2f4e2e3
+[debian-rds-patch]: https://salsa.debian.org/kernel-team/linux/-/blob/debian/6.12/trixie-security/debian/patches/debian/rds-Disable-auto-loading-as-mitigation-against-local.patch
 [rocky-kernel-config]: https://git.rockylinux.org/staging/rpms/kernel
 [kernel-releases]:  https://www.kernel.org/category/releases.html
