@@ -352,6 +352,38 @@ Persist it via `/etc/sysctl.d/`.  `io_uring_disabled=2` disables
 `CAP_SYS_ADMIN`.  Treat the RDS modprobe blacklist as the primary
 mitigation and `io_uring` hardening as a secondary layer.
 
+### NixOS
+
+NixOS manages `/etc/modprobe.d` and `/etc/sysctl.d` declaratively — set
+the NixOS options below rather than editing those files (which are
+regenerated on every rebuild), then run `nixos-rebuild switch`.  These
+are ordinary NixOS options: they belong in `configuration.nix`, or —
+with a flake — in any module imported by the host's
+`nixosConfigurations.<host>` entry.  The option syntax is identical
+either way; only the file the lines live in differs.
+
+Block the RDS modules — this text is appended to
+`/etc/modprobe.d/nixos.conf`:
+
+```nix
+boot.extraModprobeConfig = ''
+  install rds /bin/false
+  install rds_tcp /bin/false
+'';
+```
+
+Harden `io_uring` (defence-in-depth):
+
+```nix
+boot.kernel.sysctl."kernel.io_uring_disabled" = 2;
+```
+
+NixOS already blocks the unprivileged RDS *autoload* by default (see the
+NixOS row under **Distribution status**); the `boot.extraModprobeConfig`
+block above additionally defeats an explicit `modprobe rds`.  Neither
+option unloads a module that is *already* loaded — reboot, or run
+`rmmod rds_tcp rds`, to clear a live one.
+
 ### Built-in RDS (`CONFIG_RDS=y`)
 
 If RDS is compiled in rather than modular, neither `rmmod` nor the
