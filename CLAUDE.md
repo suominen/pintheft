@@ -306,9 +306,16 @@ several distro sites are JS-rendered SPAs that don't render via WebFetch.
 - **Proxmox VE:** Ubuntu-derived kernel; `CONFIG_RDS=m`.  The Ubuntu
   base blacklists `net-pf-21` via the `kmod` package — confirm whether
   Proxmox carries that drop-in.
-- **Amazon Linux:** AL2023 / AL2 kernel configs not yet confirmed.  If a
-  canonical machine-readable config cannot be located, note it in the
-  commit message rather than silently guessing.
+- **Amazon Linux:** AL2023 (`kernel` 6.1, `kernel6.12`, `kernel6.18`)
+  and the AL2 5.x `amazon-linux-extras` kernels ship `CONFIG_RDS=m` —
+  vulnerable.  AL2's default Core 4.14 kernel also has `CONFIG_RDS=m`
+  but predates the bug (RDS zerocopy is v4.17, `io_uring` is v5.1) — not
+  affected.  Configs were verified by extracting them from Amazon's
+  published *binary* kernel RPMs: fetch `repodata/primary.xml.gz` from
+  the repo (resolve via the `mirror.list` under `cdn.amazonlinux.com`),
+  locate the kernel RPM, then `bsdtar -xOf kernel-*.rpm <config-path>`
+  — the config is `boot/config-*` (AL2) or `lib/modules/*/config`
+  (AL2023).  Far smaller than the ~150 MB kernel SRPM.
 - **Fix verification:** the complete fix is *both* `44b550d88b26` and
   `e17492979319`.  A backport carrying only the first commit is
   incomplete — check `net/rds/message.c` for both.

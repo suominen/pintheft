@@ -1,5 +1,5 @@
 {
-  description = "kimmo.cloud/pintheft — Hugo build environment";
+  description = "kimmo.cloud/pintheft — Hugo build + tracker-maintenance environment";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -11,7 +11,23 @@
     in {
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          packages = with pkgs; [ hugo go git resvg ];
+          packages = with pkgs; [
+            # Build and publish the Hugo site.
+            hugo
+            go
+            git
+
+            # Rasterise the social banner SVG -> PNG (`make banner`).
+            resvg
+
+            # Distro kernel-config verification: fetch and unpack RPMs.
+            # `bsdtar` (from libarchive) unpacks .rpm directly, including
+            # zstd-compressed payloads — no `rpm` / `rpm2cpio` + `cpio`
+            # needed. nixpkgs has no standalone `rpm2cpio` derivation.
+            curl
+            libarchive
+            zstd
+          ];
         };
       });
     };

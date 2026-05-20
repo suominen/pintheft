@@ -67,9 +67,10 @@ rather than relying on anything cached here.
         a CVE once assigned) and the kernel config per suite.
       - NixOS: https://tracker.security.nixos.org/ and the channel
         pointers in CLAUDE.md.
-      - Amazon Linux: https://alas.aws.amazon.com/ — AL2023 and AL2
-        kernel-config status is still unverified; resolve if you can
-        find a canonical config.
+      - Amazon Linux: https://alas.aws.amazon.com/ — AL2023 (6.1/6.12/
+        6.18) and the AL2 5.x extras ship CONFIG_RDS=m (vulnerable);
+        AL2 Core 4.14 predates the bug. Watch ALAS for a fixed kernel
+        once a CVE is assigned.
       - Arch: https://security.archlinux.org/
       - Proxmox: https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/
 

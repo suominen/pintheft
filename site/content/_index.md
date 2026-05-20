@@ -174,20 +174,39 @@ doubt.
 
 ### Amazon Linux
 
-| Release | RDS | Status |
+Amazon builds the RDS subsystem as a loadable module — `CONFIG_RDS=m`,
+`CONFIG_RDS_TCP=m` — on every Amazon Linux kernel inspected, with
+`CONFIG_IO_URING=y`.
+
+#### Amazon Linux 2023
+
+| Stream | Kernel series | Status |
 |---|---|---|
-| Amazon Linux 2023 | unknown | :grey_question: Unverified — kernel config not yet inspected |
-| Amazon Linux 2 | unknown | :grey_question: Unverified — kernel config not yet inspected |
+| `kernel` (default) | 6.1.x  | :x: Vulnerable — `CONFIG_RDS=m`; apply the modprobe workaround |
+| `kernel6.12` | 6.12.x | :x: Vulnerable — `CONFIG_RDS=m` (Amazon-wide config); apply the modprobe workaround |
+| `kernel6.18` | 6.18.x | :x: Vulnerable — `CONFIG_RDS=m`; apply the modprobe workaround |
 
-No authoritative published kernel config for the Amazon Linux kernels
-was located while drafting this tracker.  CIS benchmarks for Amazon
-Linux include an "ensure the `rds` kernel module is not available"
-control, which hints that RDS may be built as a module — but that is not
-confirmation.  Check directly on a running instance:
+#### Amazon Linux 2
 
-```bash
-grep -E 'CONFIG_RDS\b|CONFIG_RDS_TCP|CONFIG_IO_URING' /boot/config-$(uname -r)
-```
+| Stream | Kernel series | Status |
+|---|---|---|
+| `kernel` (Core) | 4.14.x | :white_check_mark: Not affected — RDS is `=m`, but 4.14 predates both the RDS zerocopy Tx code (v4.17) and `io_uring` (v5.1) |
+| `kernel` (5.4 / 5.10 extras) | 5.4.x / 5.10.x | :x: Vulnerable — `CONFIG_RDS=m` (Amazon-wide config); apply the modprobe workaround |
+| `kernel` (5.15 extra) | 5.15.x | :x: Vulnerable — `CONFIG_RDS=m`; apply the modprobe workaround |
+
+Confirmed by extracting the kernel build config from Amazon's published
+binary kernel RPMs — AL2023 `kernel-6.1.170-213.321` and
+`kernel6.18-6.18.25-57.109`, and AL2 `kernel-4.14.355-282.729` (Core)
+and `kernel-5.15.204-143.231` (5.15 extra) — all carry `CONFIG_RDS=m`.
+The AL2023 `kernel6.12` stream and the AL2 5.4 / 5.10 extras were not
+extracted individually; they follow the same Amazon-wide `CONFIG_RDS=m`
+policy.
+
+Amazon Linux 2's default **Core** kernel is 4.14, which predates the RDS
+zerocopy Tx support (`0cebaccef3ac`, first released in v4.17) and
+`io_uring` (v5.1).  RDS is built, but neither PinTheft code path exists —
+AL2 Core is not affected.  The AL2 5.x kernels installed via
+`amazon-linux-extras` carry both and are exploitable.
 
 ### Arch Linux
 
@@ -326,10 +345,14 @@ is available.
 - **CI/CD runners:** self-hosted GitHub Actions, GitLab Runners, and
   Jenkins agents that execute untrusted code are directly in scope on
   affected kernels.
-- **Default exposure is narrow:** RDS is rare.  Among common
-  distributions only Arch Linux loads it readily; RHEL-family kernels do
-  not build it at all.  The risk concentrates on Arch hosts and on any
-  system where an administrator has loaded RDS deliberately.
+- **Default exposure:** RDS is rarely *used*, but it is built as a
+  loadable module (`CONFIG_RDS=m`) on more distributions than the
+  upstream PoC suggests — Debian, Proxmox, NixOS, Arch, Fedora, and
+  Amazon Linux all ship it.  RHEL-family kernels (Rocky / RHEL /
+  AlmaLinux 8–10) are the exception and do not build it at all.  Real
+  exposure then turns on whether an unprivileged user can get the module
+  loaded: Arch loads it on demand, Debian disables unprivileged
+  autoload, and Fedora blacklists it.
 - **Forensics:** exploitation modifies only the in-memory page cache;
   the on-disk binary is untouched.  Runtime detection (Falco, eBPF) or
   memory forensics is required — file-integrity tooling will miss it.
@@ -368,8 +391,11 @@ echo 1 > /proc/sys/vm/drop_caches
 - **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8 and 9
   (installed kernels) and Rocky 10 (the `r10` kernel config in
   git.rockylinux.org) — not affected.
-- **Amazon Linux:** AL2023 and AL2 kernel configs not yet located —
-  status unverified.
+- **Amazon Linux:** kernel build configs extracted from Amazon's
+  published binary kernel RPMs (2026-05-20) — `CONFIG_RDS=m` on AL2023
+  6.1 and 6.18 and on AL2 4.14 (Core) and 5.15 (extra).  AL2 Core 4.14
+  predates the vulnerable code; the AL2023 streams and the AL2 5.x
+  extras are vulnerable.  See the Amazon Linux table.
 - **Arch Linux / Fedora:** module-availability behaviour per the V12
   disclosure and the oss-security thread; not independently re-verified.
 
