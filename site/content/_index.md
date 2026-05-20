@@ -214,7 +214,7 @@ Amazon builds the RDS subsystem as a loadable module — `CONFIG_RDS=m`,
 
 | Stream | Kernel series | Status |
 |---|---|---|
-| `kernel` (Core) | 4.14.x | :white_check_mark: Not affected — RDS is `=m`, but 4.14 predates both the RDS zerocopy Tx code (v4.17) and `io_uring` (v5.1) |
+| `kernel` (Core) | 4.14.x | :white_check_mark: Not affected — RDS is `=m`, but 4.14 predates the vulnerable code (see below) |
 | `kernel` (5.4 / 5.10 extras) | 5.4.x / 5.10.x | :x: Vulnerable — `CONFIG_RDS=m` (Amazon-wide config); apply the modprobe workaround |
 | `kernel` (5.15 extra) | 5.15.x | :x: Vulnerable — `CONFIG_RDS=m`; apply the modprobe workaround |
 
