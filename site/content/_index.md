@@ -85,19 +85,19 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 | Branch | Status | Current | Notes |
 |---|---|---|---|
 | Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc4 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
-| 7.0.x  | :x: Vulnerable | 7.0.9    | no backport yet |
-| 6.18.x | :x: Vulnerable | 6.18.32  | LTS 2028-12 — backport expected (`Cc: stable`) |
-| 6.12.x | :x: Vulnerable | 6.12.90  | LTS 2028-12 — backport expected (`Cc: stable`) |
-| 6.6.x  | :x: Vulnerable | 6.6.140  | LTS 2026-12 — backport expected (`Cc: stable`) |
+| 7.0.x  | :warning: Partial fix | 7.0.9    | fix part 1 (`44b550d88b26`) backported, first in v7.0.7; fix part 2 pending |
+| 6.18.x | :warning: Partial fix | 6.18.32  | LTS 2028-12 — fix part 1 (`44b550d88b26`) backported, first in v6.18.30; fix part 2 pending |
+| 6.12.x | :warning: Partial fix | 6.12.90  | LTS 2028-12 — fix part 1 (`44b550d88b26`) backported, first in v6.12.88; fix part 2 pending |
+| 6.6.x  | :warning: Partial fix | 6.6.140  | LTS 2026-12 — fix part 1 (`44b550d88b26`) backported, first in v6.6.140; fix part 2 pending |
 | 6.1.x  | :x: Vulnerable | 6.1.173  | LTS 2026-12 — backport expected (`Cc: stable`) |
 | 5.15.x | :x: Vulnerable | 5.15.207 | LTS 2026-12 — backport expected (`Cc: stable`) |
 | 5.10.x | :x: Vulnerable | 5.10.256 | LTS 2026-12 — backport expected (`Cc: stable`) |
 
 RDS zero-copy Tx support landed in v4.17, so every branch above carries
-the vulnerable code.  As of 2026-05-20 neither fix commit has appeared
-in a stable point release — the disclosure is one day old.  `44b550d88b26`
-carries `Cc: stable@kernel.org`, so backports across the active branches
-are expected to follow in the next round of stable releases.
+the vulnerable code.  Fix part 1 (`44b550d88b26`) has now backported to
+the 7.0.y, 6.18.y, 6.12.y, and 6.6.y stable branches (see Notes
+column); fix part 2 (`e17492979319`) has not yet appeared in any stable
+branch.  The 6.1.y, 5.15.y, and 5.10.y branches carry neither fix.
 
 ## Distribution status
 
@@ -429,8 +429,14 @@ echo 1 > /proc/sys/vm/drop_caches
 
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
-  `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Neither is present in any
-  `linux-*.y` stable branch yet.
+  `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.
+- Fix part 1 (`44b550d88b26`) has backported to stable branches 7.0.y
+  (stable hash `0f5c185fc79a`, first in v7.0.7), 6.18.y (stable hash
+  `14ef6fd18db2`, first in v6.18.30), 6.12.y (stable hash
+  `3abc8983b2ba`, first in v6.12.88), and 6.6.y (stable hash
+  `21d70744e6d3`, first in v6.6.140).  Fix part 2 (`e17492979319`) has
+  not yet appeared in any stable branch.  Branches 6.1.y, 5.15.y, and
+  5.10.y carry neither fix.
 - Introducing commit `0cebaccef3ac` ("rds: zerocopy Tx support.")
   confirmed first released in v4.17 — every supported stable branch
   contains the vulnerable code.
