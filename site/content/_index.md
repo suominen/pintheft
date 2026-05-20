@@ -146,14 +146,37 @@ relying on it, and apply the modprobe blacklist regardless.
 
 ### NixOS
 
-NixOS ships RDS as a module (`CONFIG_RDS=m`) and does not blacklist it,
-so the module autoloads on demand — a NixOS host with RDS available is
-fully exposed until patched.
+NixOS builds RDS as a module (`CONFIG_RDS=m`), but an unprivileged
+process cannot autoload it: NixOS enables the Ubuntu module blacklist by
+default — `boot.modprobeConfig.useUbuntuModuleBlacklist` defaults to
+`true` on both `nixos-unstable` and `nixos-25.11` — which installs
+`/etc/modprobe.d/ubuntu.conf`.  That file carries Ubuntu's
+`blacklist-rare-network.conf`, which includes:
+
+```
+# rds
+alias net-pf-21 off
+```
+
+A `socket(AF_RDS, …)` from an unprivileged process makes the kernel
+issue `request_module("net-pf-21")`; the alias resolves `net-pf-21` to
+the non-existent module `off`, so `rds` does not autoload.  The PoC's
+autoload-driven entry is blocked by default.
 
 | Channel | RDS | Status |
 |---|---|---|
-| `nixos-unstable` | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
-| `nixos-25.11` | `CONFIG_RDS=m` (expected) | :x: Vulnerable (likely) — `nixos-unstable` confirmed; 25.11 shares the kernel config |
+| `nixos-unstable` | `CONFIG_RDS=m` | :white_check_mark: Mitigated by default — `net-pf-21` autoload blocked via `ubuntu.conf` |
+| `nixos-25.11` | `CONFIG_RDS=m` (expected) | :white_check_mark: Mitigated by default — same modprobe defaults; kernel config shared with `nixos-unstable` |
+
+This is defence-in-depth, not a fix — the vulnerable RDS code is still
+built.  A NixOS host is still exposed if `rds` is already loaded (an
+administrator `modprobe`, or a workload that uses RDS), or if
+`boot.modprobeConfig.useUbuntuModuleBlacklist` has been set to `false`.
+The other modprobe.d files NixOS ships do not affect RDS: `debian.conf`
+(Debian module aliases), `systemd.conf` (`bonding` / `dummy` / `ifb`
+options), and `firmware.conf` (firmware search path).  `nixos.conf` is
+empty unless `boot.blacklistedKernelModules` or `boot.extraModprobeConfig`
+is set.
 
 ### Rocky Linux
 
@@ -352,8 +375,9 @@ is available.
   Amazon Linux all ship it.  RHEL-family kernels (Rocky / RHEL /
   AlmaLinux 8–10) are the exception and do not build it at all.  Real
   exposure then turns on whether an unprivileged user can get the module
-  loaded: Arch loads it on demand, Debian disables unprivileged
-  autoload, and Fedora blacklists it.
+  loaded: Arch loads it on demand, whereas Debian (a kernel patch) and
+  Fedora and NixOS (a `modprobe.d` blacklist of the `net-pf-21` family)
+  block the unprivileged autoload by default.
 - **Forensics:** exploitation modifies only the in-memory page cache;
   the on-disk binary is untouched.  Runtime detection (Falco, eBPF) or
   memory forensics is required — file-integrity tooling will miss it.
@@ -386,9 +410,15 @@ echo 1 > /proc/sys/vm/drop_caches
   DSA/DLA issued for PinTheft as of 2026-05-20.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9; PVE 8 not yet
   inspected.
-- **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`; `nixos-25.11`
-  shares the kernel config and is treated as vulnerable pending direct
-  confirmation.
+- **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
+  enables the Ubuntu module blacklist by default
+  (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true` on
+  `nixos-unstable` and `release-25.11`), shipping `alias net-pf-21 off`
+  via `/etc/modprobe.d/ubuntu.conf` — verified against the
+  `kmod-blacklist-ubuntu` source (Ubuntu's `blacklist-rare-network.conf`)
+  in the local nixpkgs clone.  This blocks the unprivileged RDS
+  autoload; the bug code is still built.  `nixos-25.11` shares the
+  kernel config and the modprobe defaults.
 - **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8, 9,
   and 10 against the Rocky kernel configs in git.rockylinux.org
   (branches `r8` / `r9` / `r10`) — not affected.

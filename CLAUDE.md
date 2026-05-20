@@ -257,6 +257,32 @@ and to track when a fixed kernel lands.  `git-revision` returns a 302 to
 `releases.nixos.org` — always pass `-L` to curl.  Refresh the clone with
 `git -C ~/src/nixos/nixpkgs fetch --quiet origin` before each lookup.
 
+## NixOS modprobe.d hardening
+
+NixOS ships `CONFIG_RDS=m` but also blocks the unprivileged RDS autoload
+by default (`alias net-pf-21 off`), so the NixOS tracker row depends on
+more than the kernel config.  Where the modprobe.d setup lives in
+nixpkgs — inspect via the local clone, e.g.
+`git -C ~/src/nixos/nixpkgs show origin/master:<path>` (or
+`origin/release-25.11:<path>` for the stable channel):
+
+| What | Path in nixpkgs |
+|---|---|
+| `/etc/modprobe.d/{ubuntu,nixos,debian,systemd}.conf` assembly; the `boot.modprobeConfig.useUbuntuModuleBlacklist` option (default `true`) | `nixos/modules/system/boot/modprobe.nix` |
+| `/etc/modprobe.d/firmware.conf` (firmware search path; unrelated to RDS) | `nixos/modules/services/hardware/udev.nix` |
+| `ubuntu.conf` ← Ubuntu `kmod` blacklist (carries `blacklist-rare-network.conf`) | `pkgs/by-name/km/kmod-blacklist-ubuntu/package.nix` |
+| `debian.conf` ← Debian module aliases | `pkgs/by-name/km/kmod-debian-aliases/package.nix` |
+
+The blacklist *text* is not in nixpkgs: `kmod-blacklist-ubuntu`
+`fetchurl`s Ubuntu's `kmod_*.debian.tar.xz` and concatenates its
+`modprobe.d/*.conf` — the `alias net-pf-21 off` line is in that
+tarball's `blacklist-rare-network.conf`.  To re-verify, read the
+`fetchurl` URL out of the derivation and unpack the tarball with
+`bsdtar`, or just read `/etc/modprobe.d/ubuntu.conf` on a running NixOS
+host.  `nixos.conf` is `boot.blacklistedKernelModules` +
+`boot.extraModprobeConfig` (empty by default); `systemd.conf` is the
+systemd package's `bonding` / `dummy` / `ifb` options.
+
 ## Key sources to monitor
 
 | Source | URL |
@@ -301,8 +327,12 @@ several distro sites are JS-rendered SPAs that don't render via WebFetch.
 - **Fedora:** `CONFIG_RDS=m` but shipped in `kernel-modules-extra`
   (not installed on Cloud Edition) and blacklisted via `modprobe.d`.
   Low default exposure.
-- **NixOS:** `CONFIG_RDS=m`, not blacklisted — exposed once the module
-  is reachable.
+- **NixOS:** `CONFIG_RDS=m`, but `boot.modprobeConfig.useUbuntuModuleBlacklist`
+  defaults to `true`, shipping Ubuntu's `alias net-pf-21 off` in
+  `/etc/modprobe.d/ubuntu.conf` — the unprivileged RDS autoload is
+  blocked by default (defence-in-depth, not a fix).  `nixos.conf` is
+  empty unless `boot.blacklistedKernelModules` / `boot.extraModprobeConfig`
+  are set.
 - **Proxmox VE:** Ubuntu-derived kernel; `CONFIG_RDS=m`.  The Ubuntu
   base blacklists `net-pf-21` via the `kmod` package — confirm whether
   Proxmox carries that drop-in.
