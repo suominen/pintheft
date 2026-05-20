@@ -224,6 +224,11 @@ clones under `~/src/linux/`:
 |----------------------|--------------------------------------------------------------------|
 | `~/src/linux/stable` | `https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git` |
 | `~/src/linux/net`    | `https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git`   |
+| `~/src/linux/vulns`  | `https://git.kernel.org/pub/scm/linux/security/vulns.git`          |
+
+`vulns.git` is not a kernel-history clone — it is the Linux kernel
+CNA's CVE database (one record per assigned CVE). See "Discovering the
+CVE" below for what it is used for.
 
 Refresh via `git -C <clone> fetch --all --tags` and inspect via the
 `origin/<branch>` remote-tracking refs (e.g. `origin/linux-6.12.y` for
@@ -245,6 +250,57 @@ To check whether a stable branch has picked up a backport:
 git -C ~/src/linux/stable fetch --quiet --all --tags
 git -C ~/src/linux/stable log --oneline origin/linux-<series>.y -- net/rds/message.c
 ```
+
+## Discovering the CVE
+
+PinTheft has no CVE yet — the tracker uses the placeholder
+`CVE-2026-XXXXX`.  The CVE-Record / NVD endpoints in "Key sources to
+monitor" are keyed by CVE ID, so they cannot *find* the assignment;
+they only become useful once the ID is known.
+
+The deterministic discovery path is the Linux kernel CNA's `vulns.git`:
+since Feb 2024 the kernel is its own CNA.  Records move through two
+stages, and the directory says which:
+
+- `cve/review/proposed/<release>-<reviewer>` — a candidate the CNA's
+  dredge has flagged but **not yet assigned**.  No CVE ID.
+- `cve/published/<year>/CVE-YYYY-NNNNN{,.json,.mbox,.dyad}` — an
+  **assigned** CVE.  The filename is the ID.
+
+Both stages reference the *fixing commit SHA* (short form in the
+proposed lists, full 40-char in published `.json`/`.mbox`/`.dyad`), and
+both PinTheft fix commits are known, so discovery is a grep — no
+keyword guessing.  The authoritative "a CVE exists" check scopes to
+`cve/published/`:
+
+```
+git -C ~/src/linux/vulns fetch --quiet origin
+git -C ~/src/linux/vulns grep -l -e 44b550d88b26 -e e17492979319 \
+    -- 'cve/published/*'
+```
+
+When that matches, the matching filename *is* the CVE ID.  At that point:
+
+1. Replace `CVE-2026-XXXXX` throughout `site/content/_index.md` and the
+   `cveawg` / NVD URLs in `CLAUDE.md` with the real ID.
+2. Drop the `(once a CVE is assigned)` / `(once a CVE exists)` qualifiers
+   from the affected source rows.
+3. See `WEBSITE.md` for the repo / site-path rename to the CVE ID.
+
+As of 2026-05-20, fix part 1 (`44b550d88b26`) already appears in a
+*proposed* candidate — `cve/review/proposed/v7.0.7-sasha` — but nothing
+is published yet, and fix part 2 (`e17492979319`) is referenced nowhere
+in `vulns.git`.  Watch for two things: the candidate crossing into
+`cve/published/`, and whether the eventual record cites *both* fix
+commits — the dredge keys one commit per CVE, so a record naming only
+`44b550d88b26` would describe an incomplete fix (see "Fix verification"
+under "Platform-specific notes").
+
+Smart-HTTP `git fetch` is not Anubis-gated, so this works from any UA
+— same as the `stable` / `net` clones.  Secondary, fuzzier signals: a
+follow-up post on the oss-security thread, an NVD `keywordSearch` for
+`rds_message_zcopy_from_user`, or a distro tracker first referencing
+the ID.
 
 ## Local nixpkgs clone for NixOS channel verification
 
@@ -291,6 +347,9 @@ systemd package's `bonding` / `dummy` / `ifb` options.
 | V12 security team | <https://v12.sh> |
 | oss-security disclosure | <https://www.openwall.com/lists/oss-security/2026/05/19/6> |
 | oss-security thread index | <https://www.openwall.com/lists/oss-security/2026/05/19/> |
+| CVE Record — MITRE `cveawg` API (once a CVE is assigned) | <https://cveawg.mitre.org/api/cve/CVE-2026-XXXXX> |
+| CVE Record — cvelistV5 git mirror (once a CVE is assigned) | <https://github.com/CVEProject/cvelistV5> |
+| NVD enrichment record — CVE API 2.0 (once a CVE is assigned) | <https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=CVE-2026-XXXXX> |
 | Fix part 1 — netdev patch | <https://lore.kernel.org/netdev/d2ea98a6313d5467bac00f7c9fef8c7acddb9258.1777550074.git.tonanli66@gmail.com/> |
 | Fix part 2 — netdev patch | <https://lore.kernel.org/netdev/20260505234336.2132721-1-achender@kernel.org/> |
 | stable kernel releases | <https://www.kernel.org/category/releases.html> |
@@ -305,6 +364,7 @@ systemd package's `bonding` / `dummy` / `ifb` options.
 | Amazon Linux Security Center | <https://alas.aws.amazon.com/> |
 | Arch Linux security tracker | <https://security.archlinux.org/> |
 | Proxmox advisories (thread) | <https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/> |
+| Proxmox advisories (user posts, newest first) | <https://forum.proxmox.com/search/16039688/?t=post&c[users]=ProxmoxSecurityAdvisory&o=date> |
 
 For machine-readable data, prefer API/feed endpoints over HTML pages —
 several distro sites are JS-rendered SPAs that don't render via WebFetch.
