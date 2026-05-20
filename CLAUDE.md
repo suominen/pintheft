@@ -413,8 +413,9 @@ several distro sites are JS-rendered SPAs that don't render via WebFetch.
   drop-in.  It inherits neither parent's mitigation: Debian's is a
   kernel-source patch (Proxmox uses its own kernel) and Ubuntu's lives
   in the `kmod` package (Proxmox ships Debian's `kmod`).  A stock PVE 9
-  host autoloads `rds` on demand — `:x:`, like Arch.  PVE 8 not yet
-  inspected but shares the same structure.
+  host autoloads `rds` on demand — `:x:`, like Arch.  PVE 8 confirmed
+  the same: `rds.ko` in the `proxmox-kernel-6.8.12-9-pve` package also
+  carries `alias: net-pf-21`.
 - **Amazon Linux:** AL2023 (`kernel` 6.1, `kernel6.12`, `kernel6.18`)
   and the AL2 5.x `amazon-linux-extras` kernels ship `CONFIG_RDS=m` —
   vulnerable.  AL2's default Core 4.14 kernel also has `CONFIG_RDS=m`

@@ -153,7 +153,7 @@ Ubuntu-derived kernel tree.
 | Version | RDS | Status |
 |---|---|---|
 | PVE 9 | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
-| PVE 8 | `CONFIG_RDS=m` (expected) | :grey_question: Unverified — kernel config not yet inspected |
+| PVE 8 | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
 
 `CONFIG_RDS=m` on PVE 9 was confirmed by kernel-config inspection, and
 PVE 9 ships **no autoload block** — verified on a running host:
@@ -170,9 +170,11 @@ kernel source (and Proxmox builds its own kernel), while Ubuntu's
 `net-pf-21` blacklist lives in the `kmod` package (and Proxmox ships
 Debian's `kmod`).  A stock PVE 9 host therefore autoloads `rds` on
 demand for an unprivileged user, exactly like Arch — apply the modprobe
-workaround.  PVE 8 has not been inspected; it shares the same
-Debian-userland / Ubuntu-derived-kernel structure and is expected to
-behave identically.
+workaround.  PVE 8 is the same: the `rds.ko` in the current
+`proxmox-kernel-6.8.12-9-pve` package likewise carries `alias:
+net-pf-21`, and PVE 8 shares the Debian-userland / Ubuntu-derived-kernel
+structure that leaves it without a `modprobe.d` block — it is vulnerable
+on identical terms.
 
 ### NixOS
 
@@ -485,7 +487,9 @@ echo 1 > /proc/sys/vm/drop_caches
   present: `modinfo` on `rds.ko` shows `alias: net-pf-21` intact (no
   Debian-style kernel patch), and `modprobe -c` resolves `net-pf-21` to
   `rds` with no stock `modprobe.d` drop-in — a stock PVE 9 host
-  autoloads `rds` on demand.  PVE 8 not yet inspected.
+  autoloads `rds` on demand.  PVE 8 confirmed the same way: `rds.ko`
+  extracted from the `proxmox-kernel-6.8.12-9-pve` package (Proxmox
+  `bookworm` repo) also carries `alias: net-pf-21`.
 - **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
   enables the Ubuntu module blacklist by default
   (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true` on
