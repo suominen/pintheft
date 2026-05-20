@@ -406,9 +406,15 @@ several distro sites are JS-rendered SPAs that don't render via WebFetch.
   blocked by default (defence-in-depth, not a fix).  `nixos.conf` is
   empty unless `boot.blacklistedKernelModules` / `boot.extraModprobeConfig`
   are set.
-- **Proxmox VE:** Ubuntu-derived kernel; `CONFIG_RDS=m`.  The Ubuntu
-  base blacklists `net-pf-21` via the `kmod` package — confirm whether
-  Proxmox carries that drop-in.
+- **Proxmox VE:** Ubuntu-derived kernel, Debian userland;
+  `CONFIG_RDS=m`.  Verified on a running PVE 9 host: it carries *no*
+  autoload block — `proxmox-kernel`'s `rds.ko` keeps `alias: net-pf-21`
+  (no Debian-style kernel patch) and there is no stock `modprobe.d`
+  drop-in.  It inherits neither parent's mitigation: Debian's is a
+  kernel-source patch (Proxmox uses its own kernel) and Ubuntu's lives
+  in the `kmod` package (Proxmox ships Debian's `kmod`).  A stock PVE 9
+  host autoloads `rds` on demand — `:x:`, like Arch.  PVE 8 not yet
+  inspected but shares the same structure.
 - **Amazon Linux:** AL2023 (`kernel` 6.1, `kernel6.12`, `kernel6.18`)
   and the AL2 5.x `amazon-linux-extras` kernels ship `CONFIG_RDS=m` —
   vulnerable.  AL2's default Core 4.14 kernel also has `CONFIG_RDS=m`
