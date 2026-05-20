@@ -4,6 +4,10 @@ description: "Linux kernel RDS zerocopy double-free → io_uring page-cache over
 layout: "single"
 date: 2026-05-20
 lastmod: 2026-05-20
+cover:
+  image: "pintheft-tracker.png"
+  alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
+  hiddenInSingle: true
 ---
 
 ## Summary

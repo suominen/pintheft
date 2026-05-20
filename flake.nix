@@ -11,7 +11,7 @@
     in {
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          packages = with pkgs; [ hugo go git ];
+          packages = with pkgs; [ hugo go git resvg ];
         };
       });
     };

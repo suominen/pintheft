@@ -63,6 +63,9 @@ destination were retargeted.
 - [x] First-pass distro entries — Debian, Proxmox, NixOS, Rocky,
       Amazon Linux, Arch, and Fedora.  Rocky 8/9/10 not affected
       (`# CONFIG_RDS is not set`); Amazon Linux left unverified.
+- [x] Social/OpenGraph banner — `site/assets/pintheft-tracker.svg`
+      rasterised to `site/static/pintheft-tracker.png` by `make banner`
+      (resvg), wired into the `cover:` front-matter.
 
 ### 3. Local dev — done
 
@@ -120,12 +123,20 @@ destination were retargeted.
   first-column cells via `rowSpan`.  The Markdown source still has those
   cells; only the rendered DOM is compacted.
 
+## Social banner
+
+The OpenGraph / social-preview image is generated from an SVG source:
+`site/assets/pintheft-tracker.svg` (1200×630) is rasterised to
+`site/static/pintheft-tracker.png` by `make banner`, which runs `resvg`.
+The PNG is committed so ordinary `make build` / `make dist` runs need no
+rasteriser; `make banner` is only run after editing the SVG.  It needs
+`resvg` (in the Nix flake) and the Roboto fonts (`fonts-roboto-unhinted`
+on Debian) — without Roboto, resvg silently drops the SVG's sans-serif
+text.  SVG was chosen as the source because social crawlers only accept
+raster `og:image`, and Hugo's image pipeline cannot process SVG.
+
 ## Known gaps
 
-- [ ] **Cover image.** The Dirty Frag tracker has a `cover:` image used
-      for OpenGraph / RSS; this tracker omits the `cover:` front-matter
-      block until an image exists.  Add one and reinstate the block when
-      convenient.
 - [ ] **Favicons.** PaperMod's `head.html` emits five icon `<link>` tags
       that 404 unless the icon files exist in `site/static/`.  The
       sibling trackers have the same open item.

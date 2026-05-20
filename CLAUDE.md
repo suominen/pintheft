@@ -35,6 +35,8 @@ looked, that's likely why — re-read before assuming stale state.
 │   ├── content/_index.md                  # the tracker — single source of truth
 │   ├── hugo.toml                          # config (subpath baseURL — don't break)
 │   ├── assets/css/extended/custom.css     # CSS overrides (PaperMod extension point)
+│   ├── assets/pintheft-tracker.svg        # social-banner source (rasterised by `make banner`)
+│   ├── static/pintheft-tracker.png        # rendered OpenGraph banner (committed)
 │   ├── layouts/partials/post_meta.html    # overrides PaperMod: adds labels + lastmod
 │   ├── layouts/partials/extend_footer.html # client-side table compaction + code-copy
 │   └── go.mod, go.sum                     # Hugo Modules — pulls PaperMod theme
@@ -63,7 +65,10 @@ looked, that's likely why — re-read before assuming stale state.
   `UseHugoToc = true` in `hugo.toml`).  Don't add a manual TOC.
 - The "Last updated" date lives in the `lastmod` front-matter field.
   Bump it on every content edit; leave it alone on a no-op run.
-- There is no `cover:` image yet — see `WEBSITE.md` "Known gaps".
+- The `cover:` front-matter block points at `pintheft-tracker.png` and
+  feeds the OpenGraph / Twitter / RSS social image.  Keep it;
+  `hiddenInSingle: true` keeps the image out of the rendered page body.
+  See "Social banner" below for how the PNG is produced.
 
 ## Update workflow
 
@@ -73,6 +78,28 @@ looked, that's likely why — re-read before assuming stale state.
 3. `make build` — emits to `site/public/` (gitignored).
 4. `make dist` — runs `make build`, then rsyncs `site/public/` to
    `haig:.www/sites/kimmo.cloud/htdocs/pintheft/` with `--delete`.
+
+## Social banner
+
+The OpenGraph / social-preview image is **generated**, not hand-edited:
+
+- Source: `site/assets/pintheft-tracker.svg` (a 1200×630 SVG — the
+  standard OG size).  Edit this.
+- Output: `site/static/pintheft-tracker.png`, produced by `make banner`
+  (which runs `resvg`).  Hugo copies it from `static/` into `public/`
+  and PaperMod references it via the `cover:` front-matter.
+
+The PNG is committed so `make build` / `make dist` never need a
+rasteriser.  Run `make banner` only after editing the SVG, then commit
+the regenerated PNG.
+
+`make banner` needs `resvg` and the **Roboto** font family installed
+(the SVG's `font-family` stacks resolve to Roboto on Linux; without it
+resvg drops the sans-serif text entirely).  The Nix flake provides
+`resvg`; on Debian, `apt install fonts-roboto-unhinted` provides the
+font.  resvg prints one harmless `Fallback from Roboto` warning for the
+title's `font-weight="800"` (Roboto ships 700/900) — it still renders
+with a Roboto face.
 
 ## Conventions for status entries
 

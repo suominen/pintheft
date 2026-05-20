@@ -49,9 +49,11 @@ hugo server          # http://localhost:1313/pintheft/
 ```sh
 make build       # local build into site/public/
 make dist        # build, then rsync to haig:.www/sites/kimmo.cloud/htdocs/pintheft/
+make banner      # re-rasterise the social banner SVG → PNG (needs resvg + Roboto)
 ```
 
-`make dist` runs `make build` first.
+`make dist` runs `make build` first.  `make banner` is only needed after
+editing `site/assets/pintheft-tracker.svg`; the rendered PNG is committed.
 
 ## Repo layout
 
@@ -72,6 +74,8 @@ make dist        # build, then rsync to haig:.www/sites/kimmo.cloud/htdocs/pinth
     ├── content/
     │   └── _index.md      # the tracker (single page)
     ├── assets/css/extended/custom.css  # PaperMod CSS overrides
+    ├── assets/pintheft-tracker.svg     # social-banner source (→ make banner)
+    ├── static/pintheft-tracker.png     # rendered OpenGraph banner (committed)
     ├── layouts/partials/  # PaperMod overrides (post_meta, extend_footer)
     ├── go.mod, go.sum     # Hugo Modules — pulls PaperMod theme
     └── …                  # standard Hugo skeleton
