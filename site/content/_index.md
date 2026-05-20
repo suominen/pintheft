@@ -165,9 +165,10 @@ fully exposed until patched.
 
 The RHEL family does not build the RDS subsystem — the kernel config
 ships `# CONFIG_RDS is not set`, so the vulnerable code is absent
-entirely and no mitigation is required.  Rocky 8 and 9 were confirmed by
-the user from installed kernels; Rocky 10 was confirmed against the
-Rocky `r10` kernel config in [git.rockylinux.org][rocky-r10-config]
+entirely and no mitigation is required.  All three releases were
+confirmed against the Rocky kernel configs in
+[git.rockylinux.org][rocky-kernel-config]: branch `r8`
+(`SOURCES/kernel-x86_64.config`) and branches `r9` and `r10`
 (`SOURCES/kernel-x86_64-rhel.config`).  The same is expected to hold for
 RHEL, AlmaLinux, and other RHEL rebuilds, but verify per build if in
 doubt.
@@ -388,9 +389,9 @@ echo 1 > /proc/sys/vm/drop_caches
 - **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`; `nixos-25.11`
   shares the kernel config and is treated as vulnerable pending direct
   confirmation.
-- **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8 and 9
-  (installed kernels) and Rocky 10 (the `r10` kernel config in
-  git.rockylinux.org) — not affected.
+- **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8, 9,
+  and 10 against the Rocky kernel configs in git.rockylinux.org
+  (branches `r8` / `r9` / `r10`) — not affected.
 - **Amazon Linux:** kernel build configs extracted from Amazon's
   published binary kernel RPMs (2026-05-20) — `CONFIG_RDS=m` on AL2023
   6.1 and 6.18 and on AL2 4.14 (Core) and 5.15 (extra).  AL2 Core 4.14
@@ -413,7 +414,7 @@ echo 1 > /proc/sys/vm/drop_caches
 | [Fix commit `44b550d88b26` (Linus tree)][fix-1] | <https://git.kernel.org/linus/44b550d88b267320459d518c0743a241ab2108fa> |
 | [Fix commit `e17492979319` (Linus tree)][fix-2] | <https://git.kernel.org/linus/e174929793195e0cd6a4adb0cad731b39f9019b4> |
 | [Introducing commit `0cebaccef3ac` (Linus tree)][rds-introduced] | <https://git.kernel.org/linus/0cebaccef3acbdfbc2d85880a2efb765d2f4e2e3> |
-| [Rocky Linux `r10` kernel config][rocky-r10-config] | <https://git.rockylinux.org/staging/rpms/kernel/-/blob/r10/SOURCES/kernel-x86_64-rhel.config> |
+| [Rocky Linux kernel dist-git (`r8` / `r9` / `r10`)][rocky-kernel-config] | <https://git.rockylinux.org/staging/rpms/kernel> |
 | [stable kernel releases][kernel-releases] | <https://www.kernel.org/category/releases.html> |
 {.references}
 
@@ -427,5 +428,5 @@ echo 1 > /proc/sys/vm/drop_caches
 [fix-1-patch]:      https://lore.kernel.org/netdev/d2ea98a6313d5467bac00f7c9fef8c7acddb9258.1777550074.git.tonanli66@gmail.com/
 [fix-2-patch]:      https://lore.kernel.org/netdev/20260505234336.2132721-1-achender@kernel.org/
 [rds-introduced]:   https://git.kernel.org/linus/0cebaccef3acbdfbc2d85880a2efb765d2f4e2e3
-[rocky-r10-config]: https://git.rockylinux.org/staging/rpms/kernel/-/blob/r10/SOURCES/kernel-x86_64-rhel.config
+[rocky-kernel-config]: https://git.rockylinux.org/staging/rpms/kernel
 [kernel-releases]:  https://www.kernel.org/category/releases.html
