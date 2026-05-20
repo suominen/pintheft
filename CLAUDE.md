@@ -97,9 +97,12 @@ the regenerated PNG.
 (the SVG's `font-family` stacks resolve to Roboto on Linux; without it
 resvg drops the sans-serif text entirely).  The Nix flake provides
 `resvg`; on Debian, `apt install fonts-roboto-unhinted` provides the
-font.  resvg prints one harmless `Fallback from Roboto` warning for the
-title's `font-weight="800"` (Roboto ships 700/900) — it still renders
-with a Roboto face.
+font.  `make banner` should now run **warning-free**: keep it that way.
+resvg's `Fallback from Roboto` warnings mean the SVG asked for
+something the Roboto faces can't supply — only weights Roboto ships
+(`font-weight` 400/500/700/900, *not* 800), and only glyphs it covers
+(plain Latin text; no arrows or other symbols — draw those as SVG
+`<path>`/`<polygon>`, as the title's `→` is).
 
 ## Conventions for status entries
 
