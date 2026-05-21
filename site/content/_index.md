@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-20
+lastmod: 2026-05-21
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -152,8 +152,10 @@ Ubuntu-derived kernel tree.
 
 | Version | RDS | Status |
 |---|---|---|
-| PVE 9 | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
-| PVE 8 | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
+| PVE 9 | `CONFIG_RDS=m` | :x: Vulnerable — [PSA-2026-00022-1][proxmox-advisories] issued 2026-05-19; no fixed kernel yet; apply the modprobe workaround |
+| PVE 8 | `CONFIG_RDS=m` | :x: Vulnerable — [PSA-2026-00022-1][proxmox-advisories] issued 2026-05-19; no fixed kernel yet; apply the modprobe workaround |
+
+Proxmox has acknowledged PinTheft in [PSA-2026-00022-1][proxmox-advisories] (2026-05-19); no fixed `proxmox-kernel` package has been released yet.
 
 `CONFIG_RDS=m` on PVE 9 was confirmed by kernel-config inspection, and
 PVE 9 ships **no autoload block** — verified on a running host:
@@ -455,7 +457,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-20.*
+*Last verified 2026-05-21.*
 
 ### Upstream
 
@@ -489,7 +491,9 @@ echo 1 > /proc/sys/vm/drop_caches
   `rds` with no stock `modprobe.d` drop-in — a stock PVE 9 host
   autoloads `rds` on demand.  PVE 8 confirmed the same way: `rds.ko`
   extracted from the `proxmox-kernel-6.8.12-9-pve` package (Proxmox
-  `bookworm` repo) also carries `alias: net-pf-21`.
+  `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued
+  [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19 acknowledging
+  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-21.
 - **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
   enables the Ubuntu module blacklist by default
   (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true` on
@@ -527,6 +531,7 @@ echo 1 > /proc/sys/vm/drop_caches
 | [Debian RDS autoload-disable patch (Salsa)][debian-rds-patch] | <https://salsa.debian.org/kernel-team/linux/-/blob/debian/6.12/trixie-security/debian/patches/debian/rds-Disable-auto-loading-as-mitigation-against-local.patch> |
 | [Rocky Linux kernel dist-git (`r8` / `r9` / `r10`)][rocky-kernel-config] | <https://git.rockylinux.org/staging/rpms/kernel> |
 | [stable kernel releases][kernel-releases] | <https://www.kernel.org/category/releases.html> |
+| [Proxmox security advisories (PSA-2026-00022-1 — PinTheft)][proxmox-advisories] | <https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/> |
 {.references}
 
 [upstream-repo]:    https://github.com/v12-security/pocs/tree/09e835b587bf71249775654061ae4c79e92cf430/pintheft
@@ -542,3 +547,4 @@ echo 1 > /proc/sys/vm/drop_caches
 [debian-rds-patch]: https://salsa.debian.org/kernel-team/linux/-/blob/debian/6.12/trixie-security/debian/patches/debian/rds-Disable-auto-loading-as-mitigation-against-local.patch
 [rocky-kernel-config]: https://git.rockylinux.org/staging/rpms/kernel
 [kernel-releases]:  https://www.kernel.org/category/releases.html
+[proxmox-advisories]: https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/
