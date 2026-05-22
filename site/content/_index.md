@@ -276,7 +276,7 @@ PinTheft works out of the box — it is the primary real-world target.
 
 | Release | RDS | Status |
 |---|---|---|
-| Arch Linux (`linux`) | `CONFIG_RDS=m` | :x: Vulnerable — no fixed kernel yet; apply the modprobe workaround |
+| Arch Linux (`linux`) | `CONFIG_RDS=m` | :warning: Partial fix — fix part 1 (`44b550d88b26`) present in `linux` 7.0.9.arch1-1; fix part 2 (`e17492979319`) pending; apply the modprobe workaround |
 
 ### Fedora
 
@@ -520,8 +520,14 @@ echo 1 > /proc/sys/vm/drop_caches
   6.1 and 6.18 and on AL2 4.14 (Core) and 5.15 (extra).  AL2 Core 4.14
   predates the vulnerable code; the AL2023 streams and the AL2 5.x
   extras are vulnerable.  See the Amazon Linux table.
-- **Arch Linux / Fedora:** module-availability behaviour per the V12
-  disclosure and the oss-security thread; not independently re-verified.
+- **Arch Linux:** `linux` package confirmed at 7.0.9.arch1-1 via the Arch
+  Linux security tracker (2026-05-22).  7.0.9 is the latest in the 7.0.y
+  stable branch and carries fix part 1 (`44b550d88b26`, stable hash
+  `0f5c185fc79a`, first in v7.0.7); fix part 2 (`e17492979319`) is not yet
+  in any stable release.  CVE-2026-43494 not yet listed in the Arch security
+  tracker.  Status updated to `:warning: Partial fix`.
+- **Fedora:** module-availability behaviour per the V12 disclosure and the
+  oss-security thread; not independently re-verified.
 
 ## References
 
