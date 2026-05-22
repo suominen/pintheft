@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-21
+lastmod: 2026-05-22
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -14,17 +14,17 @@ cover:
 
 | Field | Detail |
 |---|---|
-| CVE ID | Not yet assigned — placeholder `CVE-2026-XXXXX` |
+| CVE ID | [`CVE-2026-43494`][cve-mitre] |
 | Alias | PinTheft |
 | Component | `net/rds/message.c` — RDS zerocopy send path (`rds_message_zcopy_from_user()`, `rds_message_purge()`) |
 | Type | Local Privilege Escalation (LPE) — RDS zerocopy double-free turned into an `io_uring` page-cache overwrite |
 | CWE | [CWE-415][cwe-415] Double Free |
-| CVSS | Not yet scored — no CVE assigned |
+| CVSS | Not yet scored |
 | Discoverer | Aaron Esau, [V12 security team][v12] |
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
 | KEV listed | not yet |
-| EPSS | not yet — no CVE assigned |
+| EPSS | not yet |
 
 An unprivileged local user can obtain root on a kernel that exposes the
 RDS (Reliable Datagram Sockets) subsystem.  The bug is a reference-count
@@ -142,8 +142,9 @@ and bullseye security branches).
 This is a mitigation, not a fix: the double-free in `net/rds/message.c`
 is still built and is exploitable on a Debian host once `rds` is loaded
 by other means (an administrator `modprobe`, or a workload that uses
-RDS).  No DSA/DLA carrying the upstream fix has been issued for PinTheft
-as of 2026-05-20.
+RDS).  No DSA/DLA carrying the upstream fix has been issued for
+CVE-2026-43494 as of 2026-05-22; the [Debian security tracker][debian-cve]
+lists all current suites as vulnerable.
 
 ### Proxmox Virtual Environment
 
@@ -457,10 +458,17 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-21.*
+*Last verified 2026-05-22.*
 
 ### Upstream
 
+- CVE-2026-43494 assigned by the Linux kernel CNA on 2026-05-21,
+  announced on [oss-security][oss-sec-cve]; keyed to fix commit
+  `e17492979319`.  PUBLISHED state confirmed in the MITRE CVE record
+  and NVD (no CVSS score yet).  Not yet in `vulns.git`
+  (`cve/published/2026/`); the proposed candidate
+  `cve/review/proposed/v7.0.7-sasha` references fix part 1
+  (`44b550d88b26`).
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.
@@ -482,8 +490,9 @@ echo 1 > /proc/sys/vm/drop_caches
   RDS autoload-disable patch (`MODULE_ALIAS_NETPROTO(PF_RDS)` commented
   out in `net/rds/af_rds.c`) was confirmed present in the kernel patch
   `series` of the `debian/latest` (sid/forky), trixie, bookworm, and
-  bullseye branches on Salsa.  No DSA/DLA carrying the upstream fix has
-  been issued for PinTheft as of 2026-05-20.
+  bullseye branches on Salsa.  No DSA/DLA carrying the upstream fix
+  (CVE-2026-43494) has been issued as of 2026-05-22; the Debian security
+  tracker lists trixie, bookworm, and bullseye as vulnerable.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9.  Verified on a
   running PVE 9 host (`proxmox-kernel` 6.17.x) that no autoload block is
   present: `modinfo` on `rds.ko` shows `alias: net-pf-21` intact (no
@@ -493,7 +502,7 @@ echo 1 > /proc/sys/vm/drop_caches
   extracted from the `proxmox-kernel-6.8.12-9-pve` package (Proxmox
   `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued
   [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19 acknowledging
-  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-21.
+  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-22.
 - **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
   enables the Ubuntu module blacklist by default
   (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true` on
@@ -532,6 +541,10 @@ echo 1 > /proc/sys/vm/drop_caches
 | [Rocky Linux kernel dist-git (`r8` / `r9` / `r10`)][rocky-kernel-config] | <https://git.rockylinux.org/staging/rpms/kernel> |
 | [stable kernel releases][kernel-releases] | <https://www.kernel.org/category/releases.html> |
 | [Proxmox security advisories (PSA-2026-00022-1 — PinTheft)][proxmox-advisories] | <https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/> |
+| [CVE-2026-43494 — MITRE CVE Record][cve-mitre] | <https://www.cve.org/CVERecord?id=CVE-2026-43494> |
+| [CVE-2026-43494 — NVD record][cve-nvd] | <https://nvd.nist.gov/vuln/detail/CVE-2026-43494> |
+| [CVE-2026-43494 — Debian security tracker][debian-cve] | <https://security-tracker.debian.org/tracker/CVE-2026-43494> |
+| [oss-security — CVE-2026-43494 assignment (2026-05-21)][oss-sec-cve] | <https://www.openwall.com/lists/oss-security/2026/05/21/2> |
 {.references}
 
 [upstream-repo]:    https://github.com/v12-security/pocs/tree/09e835b587bf71249775654061ae4c79e92cf430/pintheft
@@ -548,3 +561,7 @@ echo 1 > /proc/sys/vm/drop_caches
 [rocky-kernel-config]: https://git.rockylinux.org/staging/rpms/kernel
 [kernel-releases]:  https://www.kernel.org/category/releases.html
 [proxmox-advisories]: https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/
+[cve-mitre]:        https://www.cve.org/CVERecord?id=CVE-2026-43494
+[cve-nvd]:          https://nvd.nist.gov/vuln/detail/CVE-2026-43494
+[debian-cve]:       https://security-tracker.debian.org/tracker/CVE-2026-43494
+[oss-sec-cve]:      https://www.openwall.com/lists/oss-security/2026/05/21/2
