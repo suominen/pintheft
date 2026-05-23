@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-22
+lastmod: 2026-05-23
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -85,19 +85,19 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 | Branch | Status | Current | Notes |
 |---|---|---|---|
 | Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc4 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
-| 7.0.x  | :warning: Partial fix | 7.0.9    | fix part 1 (`44b550d88b26`) backported, first in v7.0.7; fix part 2 pending |
-| 6.18.x | :warning: Partial fix | 6.18.32  | LTS 2028-12 — fix part 1 (`44b550d88b26`) backported, first in v6.18.30; fix part 2 pending |
-| 6.12.x | :warning: Partial fix | 6.12.90  | LTS 2028-12 — fix part 1 (`44b550d88b26`) backported, first in v6.12.88; fix part 2 pending |
-| 6.6.x  | :warning: Partial fix | 6.6.140  | LTS 2026-12 — fix part 1 (`44b550d88b26`) backported, first in v6.6.140; fix part 2 pending |
-| 6.1.x  | :x: Vulnerable | 6.1.173  | LTS 2026-12 — backport expected (`Cc: stable`) |
-| 5.15.x | :x: Vulnerable | 5.15.207 | LTS 2026-12 — backport expected (`Cc: stable`) |
-| 5.10.x | :x: Vulnerable | 5.10.256 | LTS 2026-12 — backport expected (`Cc: stable`) |
+| 7.0.x  | :white_check_mark: Fixed | 7.0.10   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
+| 6.18.x | :white_check_mark: Fixed | 6.18.33  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
+| 6.12.x | :white_check_mark: Fixed | 6.12.91  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
+| 6.6.x  | :white_check_mark: Fixed | 6.6.141  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `21d70744e6d3`) first in v6.6.140; fix part 2 (`e17492979319`, stable `9115669faedc`) first in v6.6.141 |
+| 6.1.x  | :x: Vulnerable | 6.1.174  | LTS 2026-12 — backport expected (`Cc: stable`) |
+| 5.15.x | :x: Vulnerable | 5.15.208 | LTS 2026-12 — backport expected (`Cc: stable`) |
+| 5.10.x | :x: Vulnerable | 5.10.257 | LTS 2026-12 — backport expected (`Cc: stable`) |
 
 RDS zero-copy Tx support landed in v4.17, so every branch above carries
-the vulnerable code.  Fix part 1 (`44b550d88b26`) has now backported to
-the 7.0.y, 6.18.y, 6.12.y, and 6.6.y stable branches (see Notes
-column); fix part 2 (`e17492979319`) has not yet appeared in any stable
-branch.  The 6.1.y, 5.15.y, and 5.10.y branches carry neither fix.
+the vulnerable code.  Both fixes have now backported to the 7.0.y,
+6.18.y, 6.12.y, and 6.6.y stable branches (see Notes column), making
+those branches fully fixed as of their latest point releases.  The
+6.1.y, 5.15.y, and 5.10.y branches carry neither fix.
 
 ## Distribution status
 
@@ -276,7 +276,7 @@ PinTheft works out of the box — it is the primary real-world target.
 
 | Release | RDS | Status |
 |---|---|---|
-| Arch Linux (`linux`) | `CONFIG_RDS=m` | :warning: Partial fix — fix part 1 (`44b550d88b26`) present in `linux` 7.0.9.arch1-1; fix part 2 (`e17492979319`) pending; apply the modprobe workaround |
+| Arch Linux (`linux`) | `CONFIG_RDS=m` | :warning: Partial fix — fix part 1 (`44b550d88b26`) present in `linux` 7.0.9.arch2-1; fix part 2 (`e17492979319`) pending (needs kernel ≥ 7.0.10); apply the modprobe workaround |
 
 ### Fedora
 
@@ -458,7 +458,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-22.*
+*Last verified 2026-05-23.*
 
 ### Upstream
 
@@ -472,13 +472,15 @@ echo 1 > /proc/sys/vm/drop_caches
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.
-- Fix part 1 (`44b550d88b26`) has backported to stable branches 7.0.y
-  (stable hash `0f5c185fc79a`, first in v7.0.7), 6.18.y (stable hash
-  `14ef6fd18db2`, first in v6.18.30), 6.12.y (stable hash
-  `3abc8983b2ba`, first in v6.12.88), and 6.6.y (stable hash
-  `21d70744e6d3`, first in v6.6.140).  Fix part 2 (`e17492979319`) has
-  not yet appeared in any stable branch.  Branches 6.1.y, 5.15.y, and
-  5.10.y carry neither fix.
+- Both fix commits have now backported to stable branches 7.0.y, 6.18.y,
+  6.12.y, and 6.6.y.  Fix part 1 (`44b550d88b26`): stable hash
+  `0f5c185fc79a` first in v7.0.7, `14ef6fd18db2` first in v6.18.30,
+  `3abc8983b2ba` first in v6.12.88, `21d70744e6d3` first in v6.6.140.
+  Fix part 2 (`e17492979319`): stable hash `290e833d1acb` first in
+  v7.0.10, `640e37f58f99` first in v6.18.33, `0bbbff00a15b` first in
+  v6.12.91, `9115669faedc` first in v6.6.141.  Branches 6.1.y
+  (current: v6.1.174), 5.15.y (current: v5.15.208), and 5.10.y
+  (current: v5.10.257) carry neither fix.
 - Introducing commit `0cebaccef3ac` ("rds: zerocopy Tx support.")
   confirmed first released in v4.17 — every supported stable branch
   contains the vulnerable code.
@@ -491,7 +493,7 @@ echo 1 > /proc/sys/vm/drop_caches
   out in `net/rds/af_rds.c`) was confirmed present in the kernel patch
   `series` of the `debian/latest` (sid/forky), trixie, bookworm, and
   bullseye branches on Salsa.  No DSA/DLA carrying the upstream fix
-  (CVE-2026-43494) has been issued as of 2026-05-22; the Debian security
+  (CVE-2026-43494) has been issued as of 2026-05-23; the Debian security
   tracker lists trixie, bookworm, and bullseye as vulnerable.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9.  Verified on a
   running PVE 9 host (`proxmox-kernel` 6.17.x) that no autoload block is
@@ -502,7 +504,7 @@ echo 1 > /proc/sys/vm/drop_caches
   extracted from the `proxmox-kernel-6.8.12-9-pve` package (Proxmox
   `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued
   [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19 acknowledging
-  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-22.
+  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-23.
 - **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
   enables the Ubuntu module blacklist by default
   (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true` on
@@ -520,12 +522,13 @@ echo 1 > /proc/sys/vm/drop_caches
   6.1 and 6.18 and on AL2 4.14 (Core) and 5.15 (extra).  AL2 Core 4.14
   predates the vulnerable code; the AL2023 streams and the AL2 5.x
   extras are vulnerable.  See the Amazon Linux table.
-- **Arch Linux:** `linux` package confirmed at 7.0.9.arch1-1 via the Arch
-  Linux security tracker (2026-05-22).  7.0.9 is the latest in the 7.0.y
-  stable branch and carries fix part 1 (`44b550d88b26`, stable hash
-  `0f5c185fc79a`, first in v7.0.7); fix part 2 (`e17492979319`) is not yet
-  in any stable release.  CVE-2026-43494 not yet listed in the Arch security
-  tracker.  Status updated to `:warning: Partial fix`.
+- **Arch Linux:** `linux` package at 7.0.9.arch2-1 (updated 2026-05-23
+  03:11 UTC) per the Arch package page.  7.0.9 carries fix part 1
+  (`44b550d88b26`, stable hash `0f5c185fc79a`, first in v7.0.7) but not
+  fix part 2 (`e17492979319`), which first appeared in v7.0.10.  Arch
+  has not yet packaged a kernel ≥ 7.0.10; status remains
+  `:warning: Partial fix`.  CVE-2026-43494 not yet listed in the Arch
+  security tracker.
 - **Fedora:** module-availability behaviour per the V12 disclosure and the
   oss-security thread; not independently re-verified.
 
