@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-23
+lastmod: 2026-05-24
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -143,7 +143,7 @@ This is a mitigation, not a fix: the double-free in `net/rds/message.c`
 is still built and is exploitable on a Debian host once `rds` is loaded
 by other means (an administrator `modprobe`, or a workload that uses
 RDS).  No DSA/DLA carrying the upstream fix has been issued for
-CVE-2026-43494 as of 2026-05-22; the [Debian security tracker][debian-cve]
+CVE-2026-43494 as of 2026-05-24; the [Debian security tracker][debian-cve]
 lists all current suites as vulnerable.
 
 ### Proxmox Virtual Environment
@@ -276,7 +276,7 @@ PinTheft works out of the box — it is the primary real-world target.
 
 | Release | RDS | Status |
 |---|---|---|
-| Arch Linux (`linux`) | `CONFIG_RDS=m` | :warning: Partial fix — fix part 1 (`44b550d88b26`) present in `linux` 7.0.9.arch2-1; fix part 2 (`e17492979319`) pending (needs kernel ≥ 7.0.10); apply the modprobe workaround |
+| Arch Linux (`linux`) | `CONFIG_RDS=m` | :warning: Partial fix — fix part 1 (`44b550d88b26`) present in `linux` 7.0.9.arch2-1; fix part 2 (`e17492979319`) pending; `linux` 7.0.10.arch1-1 (complete fix) in [testing] as of 2026-05-24; apply the modprobe workaround |
 
 ### Fedora
 
@@ -458,7 +458,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-23.*
+*Last verified 2026-05-24.*
 
 ### Upstream
 
@@ -493,7 +493,7 @@ echo 1 > /proc/sys/vm/drop_caches
   out in `net/rds/af_rds.c`) was confirmed present in the kernel patch
   `series` of the `debian/latest` (sid/forky), trixie, bookworm, and
   bullseye branches on Salsa.  No DSA/DLA carrying the upstream fix
-  (CVE-2026-43494) has been issued as of 2026-05-23; the Debian security
+  (CVE-2026-43494) has been issued as of 2026-05-24; the Debian security
   tracker lists trixie, bookworm, and bullseye as vulnerable.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9.  Verified on a
   running PVE 9 host (`proxmox-kernel` 6.17.x) that no autoload block is
@@ -504,7 +504,7 @@ echo 1 > /proc/sys/vm/drop_caches
   extracted from the `proxmox-kernel-6.8.12-9-pve` package (Proxmox
   `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued
   [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19 acknowledging
-  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-23.
+  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-24.
 - **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
   enables the Ubuntu module blacklist by default
   (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true` on
@@ -522,13 +522,14 @@ echo 1 > /proc/sys/vm/drop_caches
   6.1 and 6.18 and on AL2 4.14 (Core) and 5.15 (extra).  AL2 Core 4.14
   predates the vulnerable code; the AL2023 streams and the AL2 5.x
   extras are vulnerable.  See the Amazon Linux table.
-- **Arch Linux:** `linux` package at 7.0.9.arch2-1 (updated 2026-05-23
-  03:11 UTC) per the Arch package page.  7.0.9 carries fix part 1
-  (`44b550d88b26`, stable hash `0f5c185fc79a`, first in v7.0.7) but not
-  fix part 2 (`e17492979319`), which first appeared in v7.0.10.  Arch
-  has not yet packaged a kernel ≥ 7.0.10; status remains
-  `:warning: Partial fix`.  CVE-2026-43494 not yet listed in the Arch
-  security tracker.
+- **Arch Linux:** `linux` 7.0.9.arch2-1 remains in stable as of
+  2026-05-24; `linux` 7.0.10.arch1-1 (the complete fix — both commits)
+  is now in [testing] per the Arch packages page.  7.0.9 carries fix
+  part 1 (`44b550d88b26`, stable hash `0f5c185fc79a`, first in v7.0.7)
+  but not fix part 2 (`e17492979319`), which first appeared in v7.0.10.
+  Status remains `:warning: Partial fix` until 7.0.10.arch1-1 graduates
+  to stable.  CVE-2026-43494 not yet listed in the Arch security
+  tracker.
 - **Fedora:** module-availability behaviour per the V12 disclosure and the
   oss-security thread; not independently re-verified.
 
