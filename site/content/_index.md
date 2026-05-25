@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-24
+lastmod: 2026-05-25
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -276,7 +276,7 @@ PinTheft works out of the box — it is the primary real-world target.
 
 | Release | RDS | Status |
 |---|---|---|
-| Arch Linux (`linux`) | `CONFIG_RDS=m` | :warning: Partial fix — fix part 1 (`44b550d88b26`) present in `linux` 7.0.9.arch2-1; fix part 2 (`e17492979319`) pending; `linux` 7.0.10.arch1-1 (complete fix) in [testing] as of 2026-05-24; apply the modprobe workaround |
+| Arch Linux (`linux`) | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux` 7.0.10.arch1-1 (both fixes) graduated from [testing] to stable (core) on 2026-05-24 |
 
 ### Fedora
 
@@ -458,7 +458,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-24.*
+*Last verified 2026-05-25.*
 
 ### Upstream
 
@@ -522,14 +522,12 @@ echo 1 > /proc/sys/vm/drop_caches
   6.1 and 6.18 and on AL2 4.14 (Core) and 5.15 (extra).  AL2 Core 4.14
   predates the vulnerable code; the AL2023 streams and the AL2 5.x
   extras are vulnerable.  See the Amazon Linux table.
-- **Arch Linux:** `linux` 7.0.9.arch2-1 remains in stable as of
-  2026-05-24; `linux` 7.0.10.arch1-1 (the complete fix — both commits)
-  is now in [testing] per the Arch packages page.  7.0.9 carries fix
-  part 1 (`44b550d88b26`, stable hash `0f5c185fc79a`, first in v7.0.7)
-  but not fix part 2 (`e17492979319`), which first appeared in v7.0.10.
-  Status remains `:warning: Partial fix` until 7.0.10.arch1-1 graduates
-  to stable.  CVE-2026-43494 not yet listed in the Arch security
-  tracker.
+- **Arch Linux:** `linux` 7.0.10.arch1-1 (both fixes — `44b550d88b26`
+  and `e17492979319`) graduated from [testing] to stable (core) on
+  2026-05-24; confirmed via the Arch packages page (built 2026-05-23,
+  last updated 2026-05-24 19:27 UTC).  Status updated to
+  `:white_check_mark: Fixed`.  CVE-2026-43494 not yet listed in the
+  Arch security tracker.
 - **Fedora:** module-availability behaviour per the V12 disclosure and the
   oss-security thread; not independently re-verified.
 
