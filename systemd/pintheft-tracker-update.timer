@@ -2,7 +2,7 @@
 Description=Run PinTheft tracker update twice daily
 
 [Timer]
-OnCalendar=*-*-* 05,17:13:00
+OnCalendar=*-*-* 05,17:31:00
 Persistent=true
 RandomizedDelaySec=5m
 
