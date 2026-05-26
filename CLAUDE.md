@@ -135,6 +135,18 @@ something the Roboto faces can't supply — only weights Roboto ships
   in place — bump the `*Last verified <date>.*` line and edit the
   relevant `### Upstream` / `### Distributions` subsection rather than
   appending a new line per re-check.
+- Dates embedded in the prose (front-matter `lastmod`, the verification
+  log header, and every "as of <date>" / "on <date>" / "released
+  <date>" phrase in the body) are **first-seen / last-changed** dates,
+  not "today" dates.  Only move a date when the fact it qualifies
+  actually changes.  A re-verification that confirms the existing state
+  is the *purpose* of the `*Last verified <date>.*` header — that one
+  line bumps; nothing else does.  If the entire run is a no-op (no
+  status, package, or commit-hash change), leave the file alone and
+  don't commit at all — don't bump `lastmod`, don't bump `*Last
+  verified*`, and don't insert "re-confirmed <today>" parentheticals.
+  The next real change is what records that everything in between was
+  still current.
 
 ## Build environment
 
