@@ -9,7 +9,7 @@
 # forward into auto-update and lets headless Claude commit any updates
 # back onto auto-update only. Merges of auto-update -> main are manual.
 
-set -euo pipefail
+set -eu
 
 REPO="$(realpath "$(dirname "${0}")/..")"
 cd "${REPO}"
