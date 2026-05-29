@@ -84,7 +84,7 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 
 | Branch | Status | Current | Notes |
 |---|---|---|---|
-| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc4 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
+| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc5 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
 | 7.0.x  | :white_check_mark: Fixed | 7.0.10   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
 | 6.18.x | :white_check_mark: Fixed | 6.18.33  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
 | 6.12.x | :white_check_mark: Fixed | 6.12.91  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
@@ -475,7 +475,8 @@ echo 1 > /proc/sys/vm/drop_caches
   (`44b550d88b26`).
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
-  `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.
+  `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
+  v7.1-rc5 (2026-05-29); both fixes remain present.
 - Both fix commits have now backported to stable branches 7.0.y, 6.18.y,
   6.12.y, and 6.6.y.  Fix part 1 (`44b550d88b26`): stable hash
   `0f5c185fc79a` first in v7.0.7, `14ef6fd18db2` first in v6.18.30,
