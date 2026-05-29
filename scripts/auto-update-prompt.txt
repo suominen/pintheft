@@ -85,7 +85,8 @@ rather than relying on anything cached here.
         CLAUDE.md's "Local nixpkgs clone" and "NixOS modprobe.d
         hardening" sections have the full recipe and paths.
         https://tracker.security.nixos.org/ is a secondary discovery
-        signal only (and is empty while the CVE is unassigned).
+        signal only — it tracks package CVE status, not the kernel-pin
+        and modprobe-hardening facts that actually decide this row.
       - Amazon Linux: https://alas.aws.amazon.com/ — AL2023 (6.1/6.12/
         6.18) and the AL2 5.x extras ship CONFIG_RDS=m (vulnerable);
         AL2 Core 4.14 predates the bug. Watch ALAS for a fixed kernel
