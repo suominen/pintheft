@@ -201,13 +201,14 @@ autoload-driven entry is blocked by default.
 
 | Channel | RDS | Status |
 |---|---|---|
-| `nixos-unstable` | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — `net-pf-21` autoload blocked via `ubuntu.conf`; double-free unpatched |
-| `nixos-25.11` | `CONFIG_RDS=m` (expected) | :warning: Mitigated, not fixed — same modprobe defaults as `nixos-unstable`; double-free unpatched |
+| `nixos-unstable` | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_18` 6.18.33 (both fixes) pinned since 2026-05-23 |
+| `nixos-25.11` | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_12` 6.12.91 (both fixes) pinned since 2026-05-23 |
 
-This is defence-in-depth, not a fix — the vulnerable RDS code is still
-built.  A NixOS host is still exposed if `rds` is already loaded (an
-administrator `modprobe`, or a workload that uses RDS), or if
-`boot.modprobeConfig.useUbuntuModuleBlacklist` has been set to `false`.
+Both channels have now advanced to fixed kernel versions: `nixos-unstable`
+to `linux_6_18` 6.18.33 and `nixos-25.11` to `linux_6_12` 6.12.91 (both
+updated in nixpkgs on 2026-05-23).  The Ubuntu module blacklist
+(`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true`) continues
+to ship on both channels as an additional layer of defence-in-depth.
 The other modprobe.d files NixOS ships do not affect RDS: `debian.conf`
 (Debian module aliases), `systemd.conf` (`bonding` / `dummy` / `ifb`
 options), and `firmware.conf` (firmware search path).  `nixos.conf` is
@@ -496,7 +497,7 @@ echo 1 > /proc/sys/vm/drop_caches
   bullseye branches on Salsa.  [DSA-6305-1][dsa-6305] (2026-05-28)
   fixed trixie with linux 6.12.90-2 (trixie-security pocket); both fix
   patches confirmed via the Debian security tracker.  Bookworm
-  (6.1.170-3 per madison) and bullseye (5.10.223-1 per madison) remain
+  (security: 6.1.174-1) and bullseye (security: 5.10.257-1) remain
   unpatched; the Debian security tracker lists them as vulnerable.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9.  Verified on a
   running PVE 9 host (`proxmox-kernel` 6.17.x) that no autoload block is
@@ -508,15 +509,15 @@ echo 1 > /proc/sys/vm/drop_caches
   `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued
   [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19 acknowledging
   PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-24.
-- **NixOS:** `CONFIG_RDS=m` confirmed for `nixos-unstable`.  NixOS
-  enables the Ubuntu module blacklist by default
-  (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true` on
-  `nixos-unstable` and `release-25.11`), shipping `alias net-pf-21 off`
-  via `/etc/modprobe.d/ubuntu.conf` — verified against the
-  `kmod-blacklist-ubuntu` source (Ubuntu's `blacklist-rare-network.conf`)
-  in the local nixpkgs clone.  This blocks the unprivileged RDS
-  autoload; the bug code is still built.  `nixos-25.11` shares the
-  kernel config and the modprobe defaults.
+- **NixOS:** both channels now pin fixed kernel versions: `nixos-unstable`
+  pins `linux_6_18` 6.18.33 (channel rev `64c08a7ca051`, 2026-05-23;
+  both fixes confirmed in upstream 6.18.y branch) and `nixos-25.11` pins
+  `linux_6_12` 6.12.91 (channel rev `25f538306313`, 2026-05-26; both
+  fixes confirmed in upstream 6.12.y branch).  Kernel versions verified
+  via local nixpkgs clone at the respective channel revisions
+  (`pkgs/os-specific/linux/kernel/kernels-org.json`).
+  `boot.modprobeConfig.useUbuntuModuleBlacklist` default confirmed `true`
+  at both revisions in `nixos/modules/system/boot/modprobe.nix`.
 - **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8, 9,
   and 10 against the Rocky kernel configs in git.rockylinux.org
   (branches `r8` / `r9` / `r10`) — not affected.
