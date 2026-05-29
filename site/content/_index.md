@@ -202,11 +202,13 @@ autoload-driven entry is blocked by default.
 | Channel | RDS | Status |
 |---|---|---|
 | `nixos-unstable` | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_18` 6.18.33 (both fixes) pinned since 2026-05-23 |
-| `nixos-25.11` | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_12` 6.12.91 (both fixes) pinned since 2026-05-23 |
+| `nixos-25.11` | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_12` 6.12.91 (both fixes) pinned since 2026-05-26 |
 
 Both channels have now advanced to fixed kernel versions: `nixos-unstable`
-to `linux_6_18` 6.18.33 and `nixos-25.11` to `linux_6_12` 6.12.91 (both
-updated in nixpkgs on 2026-05-23).  The Ubuntu module blacklist
+to `linux_6_18` 6.18.33 and `nixos-25.11` to `linux_6_12` 6.12.91.  Both
+kernel bumps landed in nixpkgs on 2026-05-23; the `nixos-unstable` channel
+picked them up the same day, while `nixos-25.11` advanced on 2026-05-26.
+The Ubuntu module blacklist
 (`boot.modprobeConfig.useUbuntuModuleBlacklist`, default `true`) continues
 to ship on both channels as an additional layer of defence-in-depth.
 The other modprobe.d files NixOS ships do not affect RDS: `debian.conf`
