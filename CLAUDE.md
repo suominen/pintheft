@@ -341,7 +341,9 @@ at `https://channels.nixos.org/<channel>/git-revision`.  For PinTheft
 the kernel *version* matters less than whether RDS is built — but the
 channel pointer is still the way to confirm what kernel a channel pins
 and to track when a fixed kernel lands.  `git-revision` returns a 302 to
-`releases.nixos.org` — always pass `-L` to curl.  Refresh the clone with
+`releases.nixos.org` — always pass `-L` to curl.  The auto-update
+wrapper (`scripts/auto-update`) refreshes the clone on every run; for
+interactive use, refresh it yourself with
 `git -C ~/src/nixos/nixpkgs fetch --quiet origin` before each lookup.
 
 ## NixOS modprobe.d hardening

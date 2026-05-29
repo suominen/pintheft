@@ -22,6 +22,8 @@ git -C "${HOME}/src/linux/stable" fetch --quiet --all --tags ||
   echo "${0##*/}: warn: linux-stable fetch failed" 1>&2
 git -C "${HOME}/src/linux/net" fetch --quiet ||
   echo "${0##*/}: warn: linux-net fetch failed" 1>&2
+git -C "${HOME}/src/nixos/nixpkgs" fetch --quiet origin ||
+  echo "${0##*/}: warn: nixpkgs fetch failed" 1>&2
 
 git fetch --quiet origin
 
@@ -43,7 +45,7 @@ git merge --quiet --no-edit origin/main
 exec claude -p \
   --model claude-sonnet-4-6 \
   --permission-mode default \
-  --settings '{"permissions":{"allow":["Read","Edit","WebFetch","Bash(git:*)","Bash(date:*)"]}}' \
+  --settings '{"permissions":{"allow":["Read","Edit","WebFetch","Bash(git:*)","Bash(date:*)","Bash(curl:*)"]}}' \
   --output-format text \
   --no-session-persistence \
   --max-budget-usd 3 \

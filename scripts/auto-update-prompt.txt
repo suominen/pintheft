@@ -1,8 +1,9 @@
 You are running headless from cron to refresh the PinTheft patch tracker.
 The wrapper has already fetched origin and checked out the auto-update
 branch with origin/main merged forward, and has also refreshed the
-local kernel clones under ~/src/linux/ — inspect them via the
-`origin/...` remote-tracking refs without re-fetching.
+local kernel clones under ~/src/linux/ and the nixpkgs clone at
+~/src/nixos/nixpkgs — inspect them via the `origin/...` remote-tracking
+refs without re-fetching.
 
 PinTheft is a Linux kernel local privilege escalation: an RDS (Reliable
 Datagram Sockets) zero-copy double-free in net/rds/message.c, turned into
@@ -65,8 +66,26 @@ rather than relying on anything cached here.
         https://git.rockylinux.org/ only if something suggests a change.
       - Debian: https://security-tracker.debian.org/tracker/ (search for
         a CVE once assigned) and the kernel config per suite.
-      - NixOS: https://tracker.security.nixos.org/ and the channel
-        pointers in CLAUDE.md.
+      - NixOS — the verdict source is the local nixpkgs clone (already
+        refreshed by the wrapper), not the web tracker. For each tracked
+        channel (nixos-unstable → `origin/master`, nixos-25.11 →
+        `origin/release-25.11`) resolve the channel's pinned revision
+        (WebFetch or `curl -fsSL` the channels.nixos.org git-revision
+        pointer — it 302s, so follow redirects), then at that revision
+        confirm the row's two deciding facts via
+        `git -C ~/src/nixos/nixpkgs show <rev>:<path>`:
+          (1) `boot.modprobeConfig.useUbuntuModuleBlacklist` still
+              defaults to `true` in
+              nixos/modules/system/boot/modprobe.nix — this is what
+              blocks unprivileged `net-pf-21` autoload; a flip to
+              `false` would change the verdict; and
+          (2) the channel's kernel pin has not advanced to a version
+              carrying BOTH fix commits, which would flip the row from
+              "mitigated" to "fixed".
+        CLAUDE.md's "Local nixpkgs clone" and "NixOS modprobe.d
+        hardening" sections have the full recipe and paths.
+        https://tracker.security.nixos.org/ is a secondary discovery
+        signal only (and is empty while the CVE is unassigned).
       - Amazon Linux: https://alas.aws.amazon.com/ — AL2023 (6.1/6.12/
         6.18) and the AL2 5.x extras ship CONFIG_RDS=m (vulnerable);
         AL2 Core 4.14 predates the bug. Watch ALAS for a fixed kernel
