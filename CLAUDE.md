@@ -258,11 +258,14 @@ clones under `~/src/linux/`:
 CNA's CVE database (one record per assigned CVE). See "Discovering the
 CVE" below for what it is used for.
 
-Refresh via `git -C <clone> fetch --all --tags` and inspect via the
-`origin/<branch>` remote-tracking refs (e.g. `origin/linux-6.12.y` for
-stable, `origin/master` for mainline-tracking).  The git smart-HTTP
-protocol is not Anubis-gated, so `git fetch` / `git ls-remote` work from
-any UA — only the cgit HTML interface is blocked.
+The auto-update *wrapper* (`scripts/auto-update`) refreshes the stable
+and net clones with `git -C <clone> fetch` before invoking the headless
+agent; the agent itself inspects via the `origin/<branch>`
+remote-tracking refs (e.g. `origin/linux-6.12.y` for stable,
+`origin/master` for mainline-tracking).  Manual refresh also works:
+`git -C <clone> fetch --all --tags`.  The git smart-HTTP protocol is
+not Anubis-gated, so `git fetch` / `git ls-remote` work from any UA —
+only the cgit HTML interface is blocked.
 
 The two PinTheft fix commits and the introducing commit:
 

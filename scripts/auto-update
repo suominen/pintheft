@@ -14,6 +14,15 @@ set -euo pipefail
 REPO="$(realpath "$(dirname "${0}")/..")"
 cd "${REPO}"
 
+# Refresh the local clones the agent reads via origin/... refs.
+# Doing this here, rather than in the prompt, makes the refresh
+# deterministic — a headless agent occasionally skips these and
+# then reports findings against stale remote-tracking refs.
+git -C "${HOME}/src/linux/stable" fetch --quiet --all --tags ||
+  echo "${0##*/}: warn: linux-stable fetch failed" 1>&2
+git -C "${HOME}/src/linux/net" fetch --quiet ||
+  echo "${0##*/}: warn: linux-net fetch failed" 1>&2
+
 git fetch --quiet origin
 
 if [ -n "$(git status --porcelain)" ]

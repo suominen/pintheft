@@ -1,6 +1,8 @@
 You are running headless from cron to refresh the PinTheft patch tracker.
 The wrapper has already fetched origin and checked out the auto-update
-branch with origin/main merged forward.
+branch with origin/main merged forward, and has also refreshed the
+local kernel clones under ~/src/linux/ — inspect them via the
+`origin/...` remote-tracking refs without re-fetching.
 
 PinTheft is a Linux kernel local privilege escalation: an RDS (Reliable
 Datagram Sockets) zero-copy double-free in net/rds/message.c, turned into
@@ -27,8 +29,8 @@ rather than relying on anything cached here.
    Note on git.kernel.org and lore.kernel.org: cgit HTML pages and
    lore message pages are Anubis-gated and WebFetch hits the no-JS
    challenge. Use the persistent local kernel clones under ~/src/linux/
-   for the kernel-tree checks — refresh with `git fetch`, inspect via
-   the `origin/...` remote-tracking refs:
+   for the kernel-tree checks — already refreshed by the wrapper,
+   inspect via the `origin/...` remote-tracking refs:
 
      ~/src/linux/stable   — stable/linux.git
      ~/src/linux/net      — netdev/net.git
@@ -41,7 +43,6 @@ rather than relying on anything cached here.
       for the current point release per stable tree, then for each
       branch in the tracker's *Upstream fixed versions* table check
       whether a backport of the fix has landed:
-        git -C ~/src/linux/stable fetch --quiet --all --tags
         git -C ~/src/linux/stable log --oneline \
           origin/linux-<series>.y -- net/rds/message.c
       Look for backports of 44b550d88b26 ("handle zerocopy send cleanup
@@ -49,7 +50,6 @@ rather than relying on anything cached here.
       when zerocopy page pin fails"). The complete fix is BOTH commits.
 
    b. netdev/net.git for any further RDS fixes:
-        git -C ~/src/linux/net fetch --quiet
         git -C ~/src/linux/net log --oneline origin/main -- net/rds/
 
    c. Once a CVE is assigned, switch the tracker's placeholder
