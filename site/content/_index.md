@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-25
+lastmod: 2026-05-29
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -121,7 +121,7 @@ Debian ships the RDS subsystem as a module (`CONFIG_RDS=m`,
 
 | Release | RDS | Status |
 |---|---|---|
-| Debian 13 (trixie) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
+| Debian 13 (trixie) | `CONFIG_RDS=m` | :white_check_mark: Fixed — linux 6.12.90-2 (trixie-security); [DSA-6305-1][dsa-6305] issued 2026-05-28 |
 | Debian 12 (bookworm) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
 | Debian 11 (bullseye) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
 
@@ -139,12 +139,13 @@ kernel binary.  The patch is present in the kernel `series` of every
 tracked suite (`debian/latest` for sid/forky, and the trixie, bookworm,
 and bullseye security branches).
 
-This is a mitigation, not a fix: the double-free in `net/rds/message.c`
-is still built and is exploitable on a Debian host once `rds` is loaded
-by other means (an administrator `modprobe`, or a workload that uses
-RDS).  No DSA/DLA carrying the upstream fix has been issued for
-CVE-2026-43494 as of 2026-05-24; the [Debian security tracker][debian-cve]
-lists all current suites as vulnerable.
+[DSA-6305-1][dsa-6305] (2026-05-28) brought a full kernel patch to
+trixie with linux 6.12.90-2 (trixie-security pocket); both fix commits
+are applied.  Bookworm and bullseye remain unpatched — the double-free
+in `net/rds/message.c` is still built and is exploitable on those hosts
+once `rds` is loaded by other means (an administrator `modprobe`, or a
+workload that uses RDS).  The [Debian security tracker][debian-cve]
+lists bookworm and bullseye as vulnerable.
 
 ### Proxmox Virtual Environment
 
@@ -458,7 +459,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-25.*
+*Last verified 2026-05-29.*
 
 ### Upstream
 
@@ -492,9 +493,11 @@ echo 1 > /proc/sys/vm/drop_caches
   RDS autoload-disable patch (`MODULE_ALIAS_NETPROTO(PF_RDS)` commented
   out in `net/rds/af_rds.c`) was confirmed present in the kernel patch
   `series` of the `debian/latest` (sid/forky), trixie, bookworm, and
-  bullseye branches on Salsa.  No DSA/DLA carrying the upstream fix
-  (CVE-2026-43494) has been issued as of 2026-05-24; the Debian security
-  tracker lists trixie, bookworm, and bullseye as vulnerable.
+  bullseye branches on Salsa.  [DSA-6305-1][dsa-6305] (2026-05-28)
+  fixed trixie with linux 6.12.90-2 (trixie-security pocket); both fix
+  patches confirmed via the Debian security tracker.  Bookworm
+  (6.1.170-3 per madison) and bullseye (5.10.223-1 per madison) remain
+  unpatched; the Debian security tracker lists them as vulnerable.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9.  Verified on a
   running PVE 9 host (`proxmox-kernel` 6.17.x) that no autoload block is
   present: `modinfo` on `rds.ko` shows `alias: net-pf-21` intact (no
@@ -552,6 +555,7 @@ echo 1 > /proc/sys/vm/drop_caches
 | [CVE-2026-43494 — MITRE CVE Record][cve-mitre] | <https://www.cve.org/CVERecord?id=CVE-2026-43494> |
 | [CVE-2026-43494 — NVD record][cve-nvd] | <https://nvd.nist.gov/vuln/detail/CVE-2026-43494> |
 | [CVE-2026-43494 — Debian security tracker][debian-cve] | <https://security-tracker.debian.org/tracker/CVE-2026-43494> |
+| [DSA-6305-1 — linux security update (2026-05-28)][dsa-6305] | <https://www.debian.org/security/2026/dsa-6305> |
 | [oss-security — CVE-2026-43494 assignment (2026-05-21)][oss-sec-cve] | <https://www.openwall.com/lists/oss-security/2026/05/21/2> |
 {.references}
 
@@ -572,4 +576,5 @@ echo 1 > /proc/sys/vm/drop_caches
 [cve-mitre]:        https://www.cve.org/CVERecord?id=CVE-2026-43494
 [cve-nvd]:          https://nvd.nist.gov/vuln/detail/CVE-2026-43494
 [debian-cve]:       https://security-tracker.debian.org/tracker/CVE-2026-43494
+[dsa-6305]:         https://www.debian.org/security/2026/dsa-6305
 [oss-sec-cve]:      https://www.openwall.com/lists/oss-security/2026/05/21/2
