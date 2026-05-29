@@ -1,5 +1,5 @@
-# Claude Code local state
-.claude/
+# Claude Code — local/personal settings only (shared settings.json is tracked)
+.claude/settings.local.json
 
 # direnv cache
 .direnv/
