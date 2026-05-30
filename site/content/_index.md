@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-29
+lastmod: 2026-05-30
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -154,10 +154,12 @@ Ubuntu-derived kernel tree.
 
 | Version | RDS | Status |
 |---|---|---|
-| PVE 9 | `CONFIG_RDS=m` | :x: Vulnerable — [PSA-2026-00022-1][proxmox-advisories] issued 2026-05-19; no fixed kernel yet; apply the modprobe workaround |
-| PVE 8 | `CONFIG_RDS=m` | :x: Vulnerable — [PSA-2026-00022-1][proxmox-advisories] issued 2026-05-19; no fixed kernel yet; apply the modprobe workaround |
+| PVE 9 | `CONFIG_RDS=m` | :white_check_mark: Fixed — [PSA-2026-00022-2][proxmox-advisories] issued 2026-05-29; proxmox-kernel-7.0.2-5-pve (7.0.x) and proxmox-kernel-6.17.13-10-pve (6.17.x) |
+| PVE 8 | `CONFIG_RDS=m` | :white_check_mark: Fixed — [PSA-2026-00022-2][proxmox-advisories] issued 2026-05-29; proxmox-kernel-6.8.12-25-pve |
 
-Proxmox has acknowledged PinTheft in [PSA-2026-00022-1][proxmox-advisories] (2026-05-19); no fixed `proxmox-kernel` package has been released yet.
+Proxmox acknowledged PinTheft in [PSA-2026-00022-1][proxmox-advisories]
+(2026-05-19); [PSA-2026-00022-2][proxmox-advisories] (2026-05-29)
+followed with patched kernel packages for PVE 8 and PVE 9.
 
 `CONFIG_RDS=m` on PVE 9 was confirmed by kernel-config inspection, and
 PVE 9 ships **no autoload block** — verified on a running host:
@@ -173,12 +175,11 @@ so it inherits neither parent's mitigation: Debian's lives in the
 kernel source (and Proxmox builds its own kernel), while Ubuntu's
 `net-pf-21` blacklist lives in the `kmod` package (and Proxmox ships
 Debian's `kmod`).  A stock PVE 9 host therefore autoloads `rds` on
-demand for an unprivileged user, exactly like Arch — apply the modprobe
-workaround.  PVE 8 is the same: the `rds.ko` in the current
-`proxmox-kernel-6.8.12-9-pve` package likewise carries `alias:
-net-pf-21`, and PVE 8 shares the Debian-userland / Ubuntu-derived-kernel
-structure that leaves it without a `modprobe.d` block — it is vulnerable
-on identical terms.
+demand for an unprivileged user, exactly like Arch.  PVE 8 is the
+same: the `rds.ko` in the `proxmox-kernel-6.8.12-9-pve` package
+likewise carries `alias: net-pf-21`, and PVE 8 shares the
+Debian-userland / Ubuntu-derived-kernel structure that leaves it without
+a `modprobe.d` block.
 
 ### NixOS
 
@@ -461,7 +462,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-29.*
+*Last verified 2026-05-30.*
 
 ### Upstream
 
@@ -508,9 +509,11 @@ echo 1 > /proc/sys/vm/drop_caches
   `rds` with no stock `modprobe.d` drop-in — a stock PVE 9 host
   autoloads `rds` on demand.  PVE 8 confirmed the same way: `rds.ko`
   extracted from the `proxmox-kernel-6.8.12-9-pve` package (Proxmox
-  `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued
-  [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19 acknowledging
-  PinTheft; no fixed `proxmox-kernel` package released as of 2026-05-24.
+  `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19
+  acknowledging PinTheft; [PSA-2026-00022-2][proxmox-advisories]
+  (2026-05-29) listed the fixed packages: proxmox-kernel-7.0.2-5-pve
+  and proxmox-kernel-6.17.13-10-pve for PVE 9, and
+  proxmox-kernel-6.8.12-25-pve for PVE 8.
 - **NixOS:** both channels now pin fixed kernel versions: `nixos-unstable`
   pins `linux_6_18` 6.18.33 (channel rev `64c08a7ca051`, 2026-05-23;
   both fixes confirmed in upstream 6.18.y branch) and `nixos-25.11` pins
