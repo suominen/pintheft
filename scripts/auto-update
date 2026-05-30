@@ -14,6 +14,11 @@ set -eu
 REPO="$(realpath "$(dirname "${0}")/..")"
 cd "${REPO}"
 
+# Identify this tracker on the first line of every run, so syslog
+# summaries that aggregate several trackers' output (all logged under
+# the generic `auto-update` process name) can be told apart.
+echo "PinTheft tracker auto-update starting ($(date -u +%FT%TZ))"
+
 # Refresh the local clones the agent reads via origin/... refs.
 # Doing this here, rather than in the prompt, makes the refresh
 # deterministic — a headless agent occasionally skips these and
