@@ -509,10 +509,11 @@ echo 1 > /proc/sys/vm/drop_caches
   `rds` with no stock `modprobe.d` drop-in — a stock PVE 9 host
   autoloads `rds` on demand.  PVE 8 confirmed the same way: `rds.ko`
   extracted from the `proxmox-kernel-6.8.12-9-pve` package (Proxmox
-  `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19
-  acknowledging PinTheft; [PSA-2026-00022-2][proxmox-advisories]
-  (2026-05-29) listed the fixed packages: proxmox-kernel-7.0.2-5-pve
-  and proxmox-kernel-6.17.13-10-pve for PVE 9, and
+  `bookworm` repo) also carries `alias: net-pf-21`.  Proxmox issued
+  [PSA-2026-00022-1][proxmox-advisories] on 2026-05-19 acknowledging
+  PinTheft; [PSA-2026-00022-2][proxmox-advisories] (2026-05-29) listed
+  the fixed packages: proxmox-kernel-7.0.2-5-pve and
+  proxmox-kernel-6.17.13-10-pve for PVE 9, and
   proxmox-kernel-6.8.12-25-pve for PVE 8.
 - **NixOS:** both channels now pin fixed kernel versions: `nixos-unstable`
   pins `linux_6_18` 6.18.33 (channel rev `64c08a7ca051`, 2026-05-23;
