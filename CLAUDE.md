@@ -134,7 +134,13 @@ something the Roboto faces can't supply — only weights Roboto ships
 - When you re-verify entries, update the `## Verification log` section
   in place — bump the `*Last verified <date>.*` line and edit the
   relevant `### Upstream` / `### Distributions` subsection rather than
-  appending a new line per re-check.
+  appending a new line per re-check.  The verified-date lives **only**
+  in that `*Last verified <date>.*` header — don't repeat it inline,
+  neither in the tracker body nor per bullet in the log (no
+  `(verified <date> …)`, no bare `(<date>)`); every log entry is already
+  "as of" that date.  Method/source attribution without a date is fine
+  (e.g. `(via security-tracker)`, `(checked against
+  ~/src/linux/stable)`).
 - Dates embedded in the prose (front-matter `lastmod`, the verification
   log header, and every "as of <date>" / "on <date>" / "released
   <date>" phrase in the body) are **first-seen / last-changed** dates,
