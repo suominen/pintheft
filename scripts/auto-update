@@ -20,6 +20,11 @@ cd "${REPO}"
 # then reports findings against stale remote-tracking refs.
 git -C "${HOME}/src/linux/stable" fetch --quiet --all --tags ||
   echo "${0##*/}: warn: linux-stable fetch failed" 1>&2
+# vulns: the kernel CVE -> fix-commit / fixed-version database. The agent
+# reads it (see .claude/settings.json) but it was not being refreshed
+# here, so the lookup could run against a stale clone. Keep it fresh.
+git -C "${HOME}/src/linux/vulns" fetch --quiet origin ||
+  echo "${0##*/}: warn: linux-vulns fetch failed" 1>&2
 git -C "${HOME}/src/linux/net" fetch --quiet ||
   echo "${0##*/}: warn: linux-net fetch failed" 1>&2
 git -C "${HOME}/src/nixos/nixpkgs" fetch --quiet origin ||
