@@ -131,6 +131,11 @@ something the Roboto faces can't supply — only weights Roboto ships
 - Record the fixed package version, the date it became available, and
   the source of confirmation (changelog entry, advisory URL, commit
   hash).
+- Each distribution-status table is the single source for its rows'
+  columns (status, version, and any fixed-since).  Per-distro prose is
+  for notes that don't fit a table — don't restate a row's columns
+  there, and don't add a parallel table that duplicates an existing one;
+  put a newly verified version/status in the table row itself.
 - When you re-verify entries, update the `## Verification log` section
   in place — bump the `*Last verified <date>.*` line and edit the
   relevant `### Upstream` / `### Distributions` subsection rather than
