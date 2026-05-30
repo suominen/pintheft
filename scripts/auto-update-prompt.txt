@@ -35,8 +35,9 @@ rather than relying on anything cached here.
 
      ~/src/linux/stable   — stable/linux.git
      ~/src/linux/net      — netdev/net.git
+     ~/src/linux/vulns    — kernel CVE database (CVE discovery + fix-commit / fixed-version)
 
-   (Setup is documented in CLAUDE.md; if either clone is missing, fail
+   (Setup is documented in CLAUDE.md; if any clone is missing, fail
    loudly rather than guessing.) Plain-text kernel.org endpoints
    (e.g. /finger_banner) are still WebFetch-able.
 
@@ -53,11 +54,23 @@ rather than relying on anything cached here.
    b. netdev/net.git for any further RDS fixes:
         git -C ~/src/linux/net log --oneline origin/main -- net/rds/
 
-   c. Once a CVE is assigned, switch the tracker's placeholder
-      CVE-2026-XXXXX to the real ID and add the CVE-keyed feeds
-      (NVD, MITRE CVE Awg JSON, Red Hat JSON, FIRST EPSS, CISA KEV).
-      Watch the oss-security thread for the assignment:
-      https://www.openwall.com/lists/oss-security/2026/05/19/
+   c. CVE discovery — the deterministic signal is the kernel CNA's
+      vulns database, NOT oss-security/NVD (those are keyed by CVE ID
+      and so cannot find the assignment). Grep the published records
+      for the fix commits — the matching filename IS the CVE ID:
+        git -C ~/src/linux/vulns grep -l -e 44b550d88b26 -e e17492979319 \
+            -- 'cve/published/*'
+      If it matches, switch the placeholder CVE-2026-XXXXX throughout
+      the tracker to that ID, add the CVE-keyed feeds (NVD, MITRE CVE
+      Awg JSON, Red Hat JSON, FIRST EPSS, CISA KEV), and read the
+      record's .dyad for the per-branch <introduced>:<fixed> versions.
+      Caveat: the dredge keys one commit per CVE, so a record naming
+      only one of the two fix commits describes an incomplete fix. See
+      "Discovering the CVE" in CLAUDE.md for the review/proposed ->
+      published staging and the rename steps. Secondary signals only:
+      the oss-security thread
+      (https://www.openwall.com/lists/oss-security/2026/05/19/) and an
+      NVD keyword search.
 
    d. Per-distro checks — the deciding question is whether RDS is built
       and reachable, not the kernel version:
