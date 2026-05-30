@@ -136,6 +136,14 @@ something the Roboto faces can't supply — only weights Roboto ships
   for notes that don't fit a table — don't restate a row's columns
   there, and don't add a parallel table that duplicates an existing one;
   put a newly verified version/status in the table row itself.
+- A value column holds the value, not a verdict word — don't write
+  "unpatched" / "patched" / "fixed" in a version or config cell when the
+  *Status* column already carries the verdict.  Label NixOS channels in
+  friendly form (`Unstable`, `Unstable (small)`, `25.11`,
+  `25.11 (small)`), not the raw `nixos-…` identifiers.  Per-distro prose
+  is reader-facing caveats (exploitability, mitigation posture) — keep
+  tracking methodology (which distros are reference-only, how channels
+  are structured) in this file, not the tracker.
 - When you re-verify entries, update the `## Verification log` section
   in place — bump the `*Last verified <date>.*` line and edit the
   relevant `### Upstream` / `### Distributions` subsection rather than
