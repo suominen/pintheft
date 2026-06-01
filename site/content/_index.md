@@ -19,7 +19,7 @@ cover:
 | Component | `net/rds/message.c` — RDS zerocopy send path (`rds_message_zcopy_from_user()`, `rds_message_purge()`) |
 | Type | Local Privilege Escalation (LPE) — RDS zerocopy double-free turned into an `io_uring` page-cache overwrite |
 | CWE | [CWE-415][cwe-415] Double Free |
-| CVSS | Not yet scored |
+| CVSS | 7.8 HIGH — `CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H` |
 | Discoverer | Aaron Esau, [V12 security team][v12] |
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
@@ -472,12 +472,12 @@ echo 1 > /proc/sys/vm/drop_caches
 
 - CVE-2026-43494 assigned by the Linux kernel CNA on 2026-05-21,
   announced on [oss-security][oss-sec-cve]; keyed to fix commit
-  `e17492979319`.  PUBLISHED state confirmed in the MITRE CVE record
-  and NVD (no CVSS score yet).  Not yet in `vulns.git`
-  (`cve/published/2026/`); two proposed candidates now reference the
-  fix commits: `cve/review/proposed/v7.0.7-sasha` for fix part 1
-  (`44b550d88b26`) and `cve/review/proposed/v7.0.10-sasha` for fix
-  part 2 (`e17492979319`).
+  `e17492979319`.  PUBLISHED state confirmed in the MITRE CVE record,
+  NVD, and `vulns.git` (`cve/published/2026/CVE-2026-43494`, published
+  2026-05-21); CVSS 3.1 score **7.8 HIGH**
+  (`CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`) added to the
+  kernel CNA record on 2026-05-29.  The record cites only fix part 2
+  (`e17492979319`); both fix commits are required for a complete fix.
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
