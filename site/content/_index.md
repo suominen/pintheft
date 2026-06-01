@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-05-30
+lastmod: 2026-06-01
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -84,8 +84,9 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 
 | Branch | Status | Current | Notes |
 |---|---|---|---|
-| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc5 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
+| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc6 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
 | 7.0.x  | :white_check_mark: Fixed | 7.0.10   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
+| 6.19.x | :x: Vulnerable — EOL | 6.19.14 (EOL) | Non-LTS stable; EOL 2026-04-22 — neither fix backported before EOL; users should upgrade to 7.0 |
 | 6.18.x | :white_check_mark: Fixed | 6.18.33  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
 | 6.12.x | :white_check_mark: Fixed | 6.12.91  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
 | 6.6.x  | :white_check_mark: Fixed | 6.6.141  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `21d70744e6d3`) first in v6.6.140; fix part 2 (`e17492979319`, stable `9115669faedc`) first in v6.6.141 |
@@ -97,7 +98,10 @@ RDS zero-copy Tx support landed in v4.17, so every branch above carries
 the vulnerable code.  Both fixes have now backported to the 7.0.y,
 6.18.y, 6.12.y, and 6.6.y stable branches (see Notes column), making
 those branches fully fixed as of their latest point releases.  The
-6.1.y, 5.15.y, and 5.10.y branches carry neither fix.
+6.19.y branch reached EOL on 2026-04-22 (v6.19.14) before the fixes
+were backported — it was a short-lived non-LTS stable between 6.18 LTS
+and 7.0 and is no longer listed on kernel.org.  The 6.1.y, 5.15.y, and
+5.10.y branches carry neither fix.
 
 ## Distribution status
 
@@ -462,7 +466,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-05-30.*
+*Last verified 2026-06-01.*
 
 ### Upstream
 
@@ -470,13 +474,18 @@ echo 1 > /proc/sys/vm/drop_caches
   announced on [oss-security][oss-sec-cve]; keyed to fix commit
   `e17492979319`.  PUBLISHED state confirmed in the MITRE CVE record
   and NVD (no CVSS score yet).  Not yet in `vulns.git`
-  (`cve/published/2026/`); the proposed candidate
-  `cve/review/proposed/v7.0.7-sasha` references fix part 1
-  (`44b550d88b26`).
+  (`cve/published/2026/`); two proposed candidates now reference the
+  fix commits: `cve/review/proposed/v7.0.7-sasha` for fix part 1
+  (`44b550d88b26`) and `cve/review/proposed/v7.0.10-sasha` for fix
+  part 2 (`e17492979319`).
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
-  v7.1-rc5 (2026-05-29); both fixes remain present.
+  v7.1-rc6 (2026-06-01); both fixes remain present.
+- linux-6.19.y confirmed present in the stable clone with latest tag
+  v6.19.14 (2026-04-22) — a short-lived non-LTS stable between 6.18 LTS
+  and 7.0, now EOL and no longer listed on kernel.org.  Neither
+  PinTheft fix was backported to this branch before EOL.
 - Both fix commits have now backported to stable branches 7.0.y, 6.18.y,
   6.12.y, and 6.6.y.  Fix part 1 (`44b550d88b26`): stable hash
   `0f5c185fc79a` first in v7.0.7, `14ef6fd18db2` first in v6.18.30,
