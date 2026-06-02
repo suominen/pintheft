@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-01
+lastmod: 2026-06-02
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -85,23 +85,23 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 | Branch | Status | Current | Notes |
 |---|---|---|---|
 | Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc6 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
-| 7.0.x  | :white_check_mark: Fixed | 7.0.10   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
+| 7.0.x  | :white_check_mark: Fixed | 7.0.11   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
 | 6.19.x | :x: Vulnerable — EOL | 6.19.14 (EOL) | Non-LTS stable; EOL 2026-04-22 — neither fix backported before EOL; users should upgrade to 7.0 |
-| 6.18.x | :white_check_mark: Fixed | 6.18.33  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
-| 6.12.x | :white_check_mark: Fixed | 6.12.91  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
-| 6.6.x  | :white_check_mark: Fixed | 6.6.141  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `21d70744e6d3`) first in v6.6.140; fix part 2 (`e17492979319`, stable `9115669faedc`) first in v6.6.141 |
-| 6.1.x  | :x: Vulnerable | 6.1.174  | LTS 2026-12 — backport expected (`Cc: stable`) |
-| 5.15.x | :x: Vulnerable | 5.15.208 | LTS 2026-12 — backport expected (`Cc: stable`) |
-| 5.10.x | :x: Vulnerable | 5.10.257 | LTS 2026-12 — backport expected (`Cc: stable`) |
+| 6.18.x | :white_check_mark: Fixed | 6.18.34  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
+| 6.12.x | :white_check_mark: Fixed | 6.12.92  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
+| 6.6.x  | :white_check_mark: Fixed | 6.6.142  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `21d70744e6d3`) first in v6.6.140; fix part 2 (`e17492979319`, stable `9115669faedc`) first in v6.6.141 |
+| 6.1.x  | :white_check_mark: Fixed | 6.1.175  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `1e262db7675e`) first in v6.1.175; fix part 2 (`e17492979319`, stable `d84ce1786ce4`) first in v6.1.175 |
+| 5.15.x | :white_check_mark: Fixed | 5.15.209 | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `46662f7dc594`) first in v5.15.209; fix part 2 (`e17492979319`, stable `03014551938a`) first in v5.15.209 |
+| 5.10.x | :white_check_mark: Fixed | 5.10.258 | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `e9aefdc5c53f`) first in v5.10.258; fix part 2 (`e17492979319`, stable `c6e51512a784`) first in v5.10.258 |
 
 RDS zero-copy Tx support landed in v4.17, so every branch above carries
-the vulnerable code.  Both fixes have now backported to the 7.0.y,
-6.18.y, 6.12.y, and 6.6.y stable branches (see Notes column), making
-those branches fully fixed as of their latest point releases.  The
-6.19.y branch reached EOL on 2026-04-22 (v6.19.14) before the fixes
-were backported — it was a short-lived non-LTS stable between 6.18 LTS
-and 7.0 and is no longer listed on kernel.org.  The 6.1.y, 5.15.y, and
-5.10.y branches carry neither fix.
+the vulnerable code.  Both fixes have now backported to all actively
+maintained stable branches: 7.0.y, 6.18.y, 6.12.y, 6.6.y, 6.1.y,
+5.15.y, and 5.10.y (see Notes column), making all those branches fully
+fixed as of their latest point releases.  The 6.19.y branch reached EOL
+on 2026-04-22 (v6.19.14) before the fixes were backported — it was a
+short-lived non-LTS stable between 6.18 LTS and 7.0 and is no longer
+listed on kernel.org.
 
 ## Distribution status
 
@@ -466,7 +466,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-01.*
+*Last verified 2026-06-02.*
 
 ### Upstream
 
@@ -486,15 +486,20 @@ echo 1 > /proc/sys/vm/drop_caches
   v6.19.14 (2026-04-22) — a short-lived non-LTS stable between 6.18 LTS
   and 7.0, now EOL and no longer listed on kernel.org.  Neither
   PinTheft fix was backported to this branch before EOL.
-- Both fix commits have now backported to stable branches 7.0.y, 6.18.y,
-  6.12.y, and 6.6.y.  Fix part 1 (`44b550d88b26`): stable hash
-  `0f5c185fc79a` first in v7.0.7, `14ef6fd18db2` first in v6.18.30,
-  `3abc8983b2ba` first in v6.12.88, `21d70744e6d3` first in v6.6.140.
-  Fix part 2 (`e17492979319`): stable hash `290e833d1acb` first in
-  v7.0.10, `640e37f58f99` first in v6.18.33, `0bbbff00a15b` first in
-  v6.12.91, `9115669faedc` first in v6.6.141.  Branches 6.1.y
-  (current: v6.1.174), 5.15.y (current: v5.15.208), and 5.10.y
-  (current: v5.10.257) carry neither fix.
+- Both fix commits now backported to all actively maintained stable
+  branches.  Fix part 1 (`44b550d88b26`): stable hash `0f5c185fc79a`
+  first in v7.0.7, `14ef6fd18db2` first in v6.18.30, `3abc8983b2ba`
+  first in v6.12.88, `21d70744e6d3` first in v6.6.140,
+  `1e262db7675e` first in v6.1.175, `46662f7dc594` first in v5.15.209,
+  `e9aefdc5c53f` first in v5.10.258.  Fix part 2 (`e17492979319`):
+  stable hash `290e833d1acb` first in v7.0.10, `640e37f58f99` first in
+  v6.18.33, `0bbbff00a15b` first in v6.12.91, `9115669faedc` first in
+  v6.6.141, `d84ce1786ce4` first in v6.1.175, `03014551938a` first in
+  v5.15.209, `c6e51512a784` first in v5.10.258.  Current point releases:
+  7.0.11, 6.18.34, 6.12.92, 6.6.142, 6.1.175, 5.15.209, 5.10.258 — all
+  fully fixed.  The CVE-2026-43494 dyad in `vulns.git` has been updated
+  to include the 6.1.y, 5.15.y, and 5.10.y branches (via
+  `e17492979319` as keyed fix commit).
 - Introducing commit `0cebaccef3ac` ("rds: zerocopy Tx support.")
   confirmed first released in v4.17 — every supported stable branch
   contains the vulnerable code.
