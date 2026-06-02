@@ -470,14 +470,14 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ### Upstream
 
-- CVE-2026-43494 assigned by the Linux kernel CNA on 2026-05-21,
-  announced on [oss-security][oss-sec-cve]; keyed to fix commit
-  `e17492979319`.  PUBLISHED state confirmed in the MITRE CVE record,
-  NVD, and `vulns.git` (`cve/published/2026/CVE-2026-43494`, published
-  2026-05-21); CVSS 3.1 score **7.8 HIGH**
-  (`CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`) added to the
-  kernel CNA record on 2026-05-29.  The record cites only fix part 2
-  (`e17492979319`); both fix commits are required for a complete fix.
+- CVE-2026-43494 confirmed assigned by the Linux kernel CNA; named
+  explicitly in [DSA-6305-1][dsa-6305] (2026-05-28).  In the local
+  `vulns.git` clone, `cve/published/2026/CVE-2026-43494` is not present
+  — fix part 1 (`44b550d88b26`) appears in
+  `cve/review/proposed/v7.0.7-sasha`; fix part 2 (`e17492979319`) is
+  referenced nowhere in the clone.  CVSS 3.1 score **7.8 HIGH**
+  (`CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`) per the CVE record;
+  both fix commits are required for a complete fix.
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
@@ -513,9 +513,12 @@ echo 1 > /proc/sys/vm/drop_caches
   `series` of the `debian/latest` (sid/forky), trixie, bookworm, and
   bullseye branches on Salsa.  [DSA-6305-1][dsa-6305] (2026-05-28)
   fixed trixie with linux 6.12.90-2 (trixie-security pocket); both fix
-  patches confirmed via the Debian security tracker.  Bookworm
-  (security: 6.1.174-1) and bullseye (security: 5.10.257-1) remain
-  unpatched; the Debian security tracker lists them as vulnerable.
+  patches confirmed via the Debian security tracker.  [DSA-6306-1]
+  (2026-05-28) fixed bookworm at linux 6.1.174-1 (for CVE-2026-43503,
+  CVE-2026-46174, CVE-2026-46300 — not CVE-2026-43494), confirming
+  bookworm remains unpatched for PinTheft (fix requires 6.1.175+).
+  Bullseye remains unpatched; the Debian security tracker lists both
+  bookworm and bullseye as vulnerable.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9.  Verified on a
   running PVE 9 host (`proxmox-kernel` 6.17.x) that no autoload block is
   present: `modinfo` on `rds.ko` shows `alias: net-pf-21` intact (no
@@ -530,12 +533,13 @@ echo 1 > /proc/sys/vm/drop_caches
   proxmox-kernel-6.17.13-10-pve for PVE 9, and
   proxmox-kernel-6.8.12-25-pve for PVE 8.
 - **NixOS:** both channels now pin fixed kernel versions: `nixos-unstable`
-  pins `linux_6_18` 6.18.33 (channel rev `64c08a7ca051`, 2026-05-23;
-  both fixes confirmed in upstream 6.18.y branch) and `nixos-25.11` pins
-  `linux_6_12` 6.12.91 (channel rev `25f538306313`, 2026-05-26; both
-  fixes confirmed in upstream 6.12.y branch).  Kernel versions verified
-  via local nixpkgs clone at the respective channel revisions
-  (`pkgs/os-specific/linux/kernel/kernels-org.json`).
+  pins `linux_6_18` 6.18.33 (first pinned at channel rev `64c08a7ca051`,
+  2026-05-23; re-verified unchanged at current channel rev
+  `331800de5053`; both fixes confirmed in upstream 6.18.y branch) and
+  `nixos-25.11` pins `linux_6_12` 6.12.91 (channel rev `25f538306313`,
+  2026-05-26; both fixes confirmed in upstream 6.12.y branch).  Kernel
+  versions verified via local nixpkgs clone at the respective channel
+  revisions (`pkgs/os-specific/linux/kernel/kernels-org.json`).
   `boot.modprobeConfig.useUbuntuModuleBlacklist` default confirmed `true`
   at both revisions in `nixos/modules/system/boot/modprobe.nix`.
 - **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8, 9,
