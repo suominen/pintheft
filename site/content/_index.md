@@ -3,7 +3,7 @@ title: "PinTheft — RDS zerocopy double-free LPE tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-02
+lastmod: 2026-06-04
 cover:
   image: "pintheft-tracker.png"
   alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -14,7 +14,7 @@ cover:
 
 | Field | Detail |
 |---|---|
-| CVE ID | [`CVE-2026-43494`][cve-mitre] |
+| CVE IDs | [`CVE-2026-43494`][cve-mitre] (fix part 2), [`CVE-2026-43502`][cve-43502-mitre] (fix part 1) |
 | Alias | PinTheft |
 | Component | `net/rds/message.c` — RDS zerocopy send path (`rds_message_zcopy_from_user()`, `rds_message_purge()`) |
 | Type | Local Privilege Escalation (LPE) — RDS zerocopy double-free turned into an `io_uring` page-cache overwrite |
@@ -66,8 +66,8 @@ overwrite is transient: dropping the page cache or rebooting clears it.
 | Commit | Role | Description |
 |---|---|---|
 | [`0cebaccef3ac`][rds-introduced] | Introduced | `rds: zerocopy Tx support.` — Sowmini Varadhan, 2018-02-15; first released in **v4.17** |
-| [`44b550d88b26`][fix-1] | Fix (part 1) | `net/rds: handle zerocopy send cleanup before the message is queued` — uses `op_mmp_znotifier` as the cleanup discriminator; mainline **v7.1-rc3**, merged 2026-05-05; carries `Cc: stable` |
-| [`e17492979319`][fix-2] | Fix (part 2) | `net/rds: reset op_nents when zerocopy page pin fails` — clears the stale `op_nents` directly; mainline **v7.1-rc4**, merged 2026-05-11 |
+| [`44b550d88b26`][fix-1] | Fix (part 1) — [CVE-2026-43502][cve-43502-mitre] | `net/rds: handle zerocopy send cleanup before the message is queued` — uses `op_mmp_znotifier` as the cleanup discriminator; mainline **v7.1-rc3**, merged 2026-05-05; carries `Cc: stable` |
+| [`e17492979319`][fix-2] | Fix (part 2) — [CVE-2026-43494][cve-mitre] | `net/rds: reset op_nents when zerocopy page pin fails` — clears the stale `op_nents` directly; mainline **v7.1-rc4**, merged 2026-05-11 |
 
 Both fixes name the same introducing commit in their `Fixes:` tag
 (`0cebaccef3ac "rds: zerocopy Tx support."`).  The effective lifetime of
@@ -466,18 +466,18 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-02.*
+*Last verified 2026-06-04.*
 
 ### Upstream
 
-- CVE-2026-43494 confirmed assigned by the Linux kernel CNA; named
-  explicitly in [DSA-6305-1][dsa-6305] (2026-05-28).  In the local
-  `vulns.git` clone, `cve/published/2026/CVE-2026-43494` is not present
-  — fix part 1 (`44b550d88b26`) appears in
-  `cve/review/proposed/v7.0.7-sasha`; fix part 2 (`e17492979319`) is
-  referenced nowhere in the clone.  CVSS 3.1 score **7.8 HIGH**
-  (`CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`) per the CVE record;
-  both fix commits are required for a complete fix.
+- CVE-2026-43494 (keyed on fix part 2, `e17492979319`) and
+  CVE-2026-43502 (keyed on fix part 1, `44b550d88b26`) both assigned by
+  the Linux kernel CNA; both named in [DSA-6305-1][dsa-6305]
+  (2026-05-28).  Both records now present in `cve/published/2026/` in
+  the local `vulns.git` clone (previously fix part 1 was only in
+  `cve/review/proposed/v7.0.7-sasha` and fix part 2 was absent).  CVSS
+  3.1 score **7.8 HIGH** (`CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`)
+  per both records; both fix commits are required for a complete fix.
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
@@ -497,9 +497,9 @@ echo 1 > /proc/sys/vm/drop_caches
   v6.6.141, `d84ce1786ce4` first in v6.1.175, `03014551938a` first in
   v5.15.209, `c6e51512a784` first in v5.10.258.  Current point releases:
   7.0.11, 6.18.34, 6.12.92, 6.6.142, 6.1.175, 5.15.209, 5.10.258 — all
-  fully fixed.  The CVE-2026-43494 dyad in `vulns.git` has been updated
-  to include the 6.1.y, 5.15.y, and 5.10.y branches (via
-  `e17492979319` as keyed fix commit).
+  fully fixed.  Both dyads in `vulns.git` confirm all stable branches
+  (CVE-2026-43494 keyed on `e17492979319`; CVE-2026-43502 keyed on
+  `44b550d88b26`).
 - Introducing commit `0cebaccef3ac` ("rds: zerocopy Tx support.")
   confirmed first released in v4.17 — every supported stable branch
   contains the vulnerable code.
@@ -580,6 +580,9 @@ echo 1 > /proc/sys/vm/drop_caches
 | [CVE-2026-43494 — MITRE CVE Record][cve-mitre] | <https://www.cve.org/CVERecord?id=CVE-2026-43494> |
 | [CVE-2026-43494 — NVD record][cve-nvd] | <https://nvd.nist.gov/vuln/detail/CVE-2026-43494> |
 | [CVE-2026-43494 — Debian security tracker][debian-cve] | <https://security-tracker.debian.org/tracker/CVE-2026-43494> |
+| [CVE-2026-43502 — MITRE CVE Record][cve-43502-mitre] | <https://www.cve.org/CVERecord?id=CVE-2026-43502> |
+| [CVE-2026-43502 — NVD record][cve-43502-nvd] | <https://nvd.nist.gov/vuln/detail/CVE-2026-43502> |
+| [CVE-2026-43502 — Debian security tracker][debian-cve-43502] | <https://security-tracker.debian.org/tracker/CVE-2026-43502> |
 | [DSA-6305-1 — linux security update (2026-05-28)][dsa-6305] | <https://www.debian.org/security/2026/dsa-6305> |
 | [oss-security — CVE-2026-43494 assignment (2026-05-21)][oss-sec-cve] | <https://www.openwall.com/lists/oss-security/2026/05/21/2> |
 {.references}
@@ -601,5 +604,8 @@ echo 1 > /proc/sys/vm/drop_caches
 [cve-mitre]:        https://www.cve.org/CVERecord?id=CVE-2026-43494
 [cve-nvd]:          https://nvd.nist.gov/vuln/detail/CVE-2026-43494
 [debian-cve]:       https://security-tracker.debian.org/tracker/CVE-2026-43494
+[cve-43502-mitre]:  https://www.cve.org/CVERecord?id=CVE-2026-43502
+[cve-43502-nvd]:    https://nvd.nist.gov/vuln/detail/CVE-2026-43502
+[debian-cve-43502]: https://security-tracker.debian.org/tracker/CVE-2026-43502
 [dsa-6305]:         https://www.debian.org/security/2026/dsa-6305
 [oss-sec-cve]:      https://www.openwall.com/lists/oss-security/2026/05/21/2
