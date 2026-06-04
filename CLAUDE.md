@@ -156,16 +156,21 @@ something the Roboto faces can't supply — only weights Roboto ships
   ~/src/linux/stable)`).
 - Dates embedded in the prose (front-matter `lastmod`, the verification
   log header, and every "as of <date>" / "on <date>" / "released
-  <date>" phrase in the body) are **first-seen / last-changed** dates,
-  not "today" dates.  Only move a date when the fact it qualifies
-  actually changes.  A re-verification that confirms the existing state
+  <date>" / "scored <date>" phrase in the body) are **first-seen /
+  last-changed** dates, not "today" dates.  Only move a date when the
+  fact it qualifies actually changes.  A re-verification that confirms the existing state
   is the *purpose* of the `*Last verified <date>.*` header — that one
   line bumps; nothing else does.  If the entire run is a no-op (no
   status, package, or commit-hash change), leave the file alone and
   don't commit at all — don't bump `lastmod`, don't bump `*Last
   verified*`, and don't insert "re-confirmed <today>" parentheticals.
   The next real change is what records that everything in between was
-  still current.
+  still current.  Once EPSS scores the CVE, a KEV listing change or a
+  shift in the EPSS score or percentile counts as a real change — but
+  the EPSS `scored <date>` is only the first-seen marker for the current
+  score/percentile, not a fact in its own right.  EPSS re-scores daily,
+  so a fresh scored date for an otherwise-unchanged value is a no-op:
+  don't bump the date, `lastmod`, or commit.
 
 ## Build environment
 
