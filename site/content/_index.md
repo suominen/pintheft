@@ -24,7 +24,7 @@ cover:
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
 | KEV listed | not yet |
-| EPSS | CVE-2026-43494: 0.013% (2.09th percentile); CVE-2026-43502: 0.013% (2.49th percentile) — scored 2026-05-30 |
+| EPSS | CVE-2026-43494: 0.013% (2.10th percentile); CVE-2026-43502: 0.013% (2.50th percentile) — scored 2026-05-30 |
 
 An unprivileged local user can obtain root on a kernel that exposes the
 RDS (Reliable Datagram Sockets) subsystem.  The bug is a reference-count
@@ -478,14 +478,14 @@ echo 1 > /proc/sys/vm/drop_caches
 
 - CVE-2026-43494 (keyed on fix part 2, `e17492979319`) and
   CVE-2026-43502 (keyed on fix part 1, `44b550d88b26`) both assigned by
-  the Linux kernel CNA; both named in [DSA-6305-1][dsa-6305]
-  (2026-05-28).  Neither is in `cve/published/2026/` in the local
-  `vulns.git` clone (fetched 2026-05-19; fix part 1 still only in
-  `cve/review/proposed/v7.0.7-sasha`; fix part 2 absent).  CVE existence
-  confirmed via EPSS (both scored since 2026-05-21/22) and the Debian
-  security tracker.  CVSS 3.1 score **7.8 HIGH**
-  (`CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`) per both records;
-  both fix commits are required for a complete fix.
+  the Linux kernel CNA on 2026-05-21; both in `cve/published/2026/` in
+  the local `vulns.git` clone (confirmed via
+  `git grep -l -e 44b550d88b26 -e e17492979319 origin/master -- 'cve/published/*'`).
+  Both dyad records confirm introducing commit `0cebaccef3ac` (v4.17)
+  and list per-branch fixed versions matching the upstream table.  Both
+  named in [DSA-6305-1][dsa-6305] (2026-05-28).  CVSS 3.1 score
+  **7.8 HIGH** (`CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`) per
+  both records; both fix commits are required for a complete fix.
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
@@ -578,8 +578,9 @@ echo 1 > /proc/sys/vm/drop_caches
 - **EPSS:** both CVEs now scored (via FIRST.org EPSS API).  CVE-2026-43494
   first scored 2026-05-21; CVE-2026-43502 first scored 2026-05-22.  Current
   score 0.000130 (0.013%) first appeared 2026-05-30 for both — percentile
-  2.09% for CVE-2026-43494, 2.49% for CVE-2026-43502.  Summary table updated
-  from "not yet" to current values.
+  2.10% for CVE-2026-43494, 2.50% for CVE-2026-43502 (score unchanged;
+  percentile shifted slightly with daily re-scoring).  Summary table
+  updated from "not yet" to current values.
 
 ## References
 
