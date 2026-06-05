@@ -1,6 +1,6 @@
 baseURL = "https://kimmo.cloud/pintheft/"
 locale = "en-US"
-title = "PinTheft — RDS zerocopy double-free LPE"
+title = "CVE-2026-43494 / CVE-2026-43502 — PinTheft"
 copyright = "Copyright © 2026 [Kimmo Suominen](https://kimmo.suominen.com/) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)"
 
 enableEmoji = true

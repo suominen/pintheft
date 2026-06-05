@@ -1,12 +1,12 @@
 ---
-title: "PinTheft — RDS zerocopy double-free LPE tracking"
+title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
 lastmod: 2026-06-05
 cover:
   image: "pintheft-tracker.png"
-  alt: "PinTheft — RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
+  alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
   hiddenInSingle: true
 ---
 
