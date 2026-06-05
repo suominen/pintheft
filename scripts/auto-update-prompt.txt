@@ -59,7 +59,7 @@ rather than relying on anything cached here.
       and so cannot find the assignment). Grep the published records
       for the fix commits — the matching filename IS the CVE ID:
         git -C ~/src/linux/vulns grep -l -e 44b550d88b26 -e e17492979319 \
-            -- 'cve/published/*'
+            origin/master -- 'cve/published/*'
       If it matches, switch the placeholder CVE-2026-XXXXX throughout
       the tracker to that ID, add the CVE-keyed feeds (NVD, MITRE CVE
       Awg JSON, Red Hat JSON, FIRST EPSS, CISA KEV), and read the

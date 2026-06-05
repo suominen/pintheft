@@ -328,10 +328,14 @@ both PinTheft fix commits are known, so discovery is a grep — no
 keyword guessing.  The authoritative "a CVE exists" check scopes to
 `cve/published/`:
 
+The wrapper only *fetches* the clone, so local `HEAD` stays stale — scope
+the grep to `origin/master`, never the working tree, or it can miss a
+record that has already landed:
+
 ```
 git -C ~/src/linux/vulns fetch --quiet origin
 git -C ~/src/linux/vulns grep -l -e 44b550d88b26 -e e17492979319 \
-    -- 'cve/published/*'
+    origin/master -- 'cve/published/*'
 ```
 
 When that matches, the matching filename *is* the CVE ID.  At that point:
