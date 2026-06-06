@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-05
+lastmod: 2026-06-06
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -207,7 +207,7 @@ autoload-driven entry is blocked by default.
 | Channel | RDS | Status |
 |---|---|---|
 | Unstable | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_18` 6.18.33 (both fixes) pinned since 2026-05-23 |
-| 25.11 | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_12` 6.12.91 (both fixes) pinned since 2026-05-26 |
+| 25.11 | `CONFIG_RDS=m` | :white_check_mark: Fixed — `linux_6_12` 6.12.92 (both fixes) pinned since 2026-05-26 |
 
 Both kernel bumps landed in nixpkgs on 2026-05-23; the `nixos-unstable`
 channel picked them up the same day, while `nixos-25.11` advanced on
@@ -472,7 +472,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-05.*
+*Last verified 2026-06-06.*
 
 ### Upstream
 
@@ -545,12 +545,13 @@ echo 1 > /proc/sys/vm/drop_caches
   pins `linux_6_18` 6.18.33 (first pinned at channel rev `64c08a7ca051`,
   2026-05-23; re-verified unchanged at current channel rev
   `331800de5053`; both fixes confirmed in upstream 6.18.y branch) and
-  `nixos-25.11` pins `linux_6_12` 6.12.91 (channel rev `25f538306313`,
-  2026-05-26; both fixes confirmed in upstream 6.12.y branch).  Kernel
-  versions verified via local nixpkgs clone at the respective channel
-  revisions (`pkgs/os-specific/linux/kernel/kernels-org.json`).
+  `nixos-25.11` pins `linux_6_12` 6.12.92 (channel rev `535f3e6942cb`;
+  first fixed at channel rev `25f538306313` with 6.12.91, 2026-05-26;
+  both fixes confirmed in upstream 6.12.y branch).  Kernel versions
+  verified via local nixpkgs clone at the respective channel revisions
+  (`pkgs/os-specific/linux/kernel/kernels-org.json`).
   `boot.modprobeConfig.useUbuntuModuleBlacklist` default confirmed `true`
-  at both revisions in `nixos/modules/system/boot/modprobe.nix`.
+  at both channel revisions in `nixos/modules/system/boot/modprobe.nix`.
 - **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8, 9,
   and 10 against the Rocky kernel configs in git.rockylinux.org
   (branches `r8` / `r9` / `r10`) — not affected.
