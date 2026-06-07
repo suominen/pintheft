@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-06
+lastmod: 2026-06-07
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -24,7 +24,7 @@ cover:
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
 | KEV listed | not yet |
-| EPSS | CVE-2026-43494: 0.013% (2.10th percentile); CVE-2026-43502: 0.013% (2.50th percentile) — scored 2026-05-30 |
+| EPSS | CVE-2026-43494: 0.013% (2.10th percentile); CVE-2026-43502: 0.013% (2.44th percentile) — scored 2026-05-30 |
 
 An unprivileged local user can obtain root on a kernel that exposes the
 RDS (Reliable Datagram Sockets) subsystem.  The bug is a reference-count
@@ -472,7 +472,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-06.*
+*Last verified 2026-06-07.*
 
 ### Upstream
 
@@ -579,7 +579,7 @@ echo 1 > /proc/sys/vm/drop_caches
 - **EPSS:** both CVEs now scored (via FIRST.org EPSS API).  CVE-2026-43494
   first scored 2026-05-21; CVE-2026-43502 first scored 2026-05-22.  Current
   score 0.000130 (0.013%) first appeared 2026-05-30 for both — percentile
-  2.10% for CVE-2026-43494, 2.50% for CVE-2026-43502 (score unchanged;
+  2.10% for CVE-2026-43494, 2.44% for CVE-2026-43502 (score unchanged;
   percentile shifted slightly with daily re-scoring).  Summary table
   updated from "not yet" to current values.
 
