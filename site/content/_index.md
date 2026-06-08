@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-07
+lastmod: 2026-06-08
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -84,7 +84,7 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 
 | Branch | Status | Current | Notes |
 |---|---|---|---|
-| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc6 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
+| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc7 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
 | 7.0.x  | :white_check_mark: Fixed | 7.0.11   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
 | 6.19.x | :x: Vulnerable — EOL | 6.19.14 (EOL) | Non-LTS stable; EOL 2026-04-22 — neither fix backported before EOL; users should upgrade to 7.0 |
 | 6.18.x | :white_check_mark: Fixed | 6.18.34  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
@@ -472,7 +472,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-07.*
+*Last verified 2026-06-08.*
 
 ### Upstream
 
@@ -489,10 +489,11 @@ echo 1 > /proc/sys/vm/drop_caches
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
-  v7.1-rc6 (2026-06-01); both fixes remain present.  Two new unrelated
+  v7.1-rc7; both fixes remain present.  Two new unrelated
   RDS commits in `netdev/net.git` queue: `20cf0fb715c4` (RDS IB: clear
   i_sends on setup unwind, `Cc: stable`) and `d2bfdbb69cf8` (rds_tcp:
-  close NULL deref in rds_tcp_set_callbacks) — neither is PinTheft-related.
+  close NULL deref in rds_tcp_set_callbacks) — neither is PinTheft-related;
+  neither has yet appeared in any stable branch.
 - linux-6.19.y confirmed present in the stable clone with latest tag
   v6.19.14 (2026-04-22) — a short-lived non-LTS stable between 6.18 LTS
   and 7.0, now EOL and no longer listed on kernel.org.  Neither
