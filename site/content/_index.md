@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-08
+lastmod: 2026-06-11
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -24,7 +24,7 @@ cover:
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
 | KEV listed | not yet |
-| EPSS | CVE-2026-43494: 0.013% (2.08th percentile); CVE-2026-43502: 0.013% (2.43th percentile) — scored 2026-05-30 |
+| EPSS | CVE-2026-43494: 0.013% (2.08th percentile); CVE-2026-43502: 0.013% (2.41st percentile) — scored 2026-05-30 |
 
 An unprivileged local user can obtain root on a kernel that exposes the
 RDS (Reliable Datagram Sockets) subsystem.  The bug is a reference-count
@@ -85,10 +85,10 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 | Branch | Status | Current | Notes |
 |---|---|---|---|
 | Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1-rc7 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.1 not yet released |
-| 7.0.x  | :white_check_mark: Fixed | 7.0.11   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
+| 7.0.x  | :white_check_mark: Fixed | 7.0.12   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
 | 6.19.x | :x: Vulnerable — EOL | 6.19.14 (EOL) | Non-LTS stable; EOL 2026-04-22 — neither fix backported before EOL; users should upgrade to 7.0 |
-| 6.18.x | :white_check_mark: Fixed | 6.18.34  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
-| 6.12.x | :white_check_mark: Fixed | 6.12.92  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
+| 6.18.x | :white_check_mark: Fixed | 6.18.35  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
+| 6.12.x | :white_check_mark: Fixed | 6.12.93  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
 | 6.6.x  | :white_check_mark: Fixed | 6.6.142  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `21d70744e6d3`) first in v6.6.140; fix part 2 (`e17492979319`, stable `9115669faedc`) first in v6.6.141 |
 | 6.1.x  | :white_check_mark: Fixed | 6.1.175  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `1e262db7675e`) first in v6.1.175; fix part 2 (`e17492979319`, stable `d84ce1786ce4`) first in v6.1.175 |
 | 5.15.x | :white_check_mark: Fixed | 5.15.209 | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `46662f7dc594`) first in v5.15.209; fix part 2 (`e17492979319`, stable `03014551938a`) first in v5.15.209 |
@@ -472,7 +472,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-08.*
+*Last verified 2026-06-11.*
 
 ### Upstream
 
@@ -489,11 +489,10 @@ echo 1 > /proc/sys/vm/drop_caches
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline advanced to
-  v7.1-rc7; both fixes remain present.  Two new unrelated
-  RDS commits in `netdev/net.git` queue: `20cf0fb715c4` (RDS IB: clear
-  i_sends on setup unwind, `Cc: stable`) and `d2bfdbb69cf8` (rds_tcp:
-  close NULL deref in rds_tcp_set_callbacks) — neither is PinTheft-related;
-  neither has yet appeared in any stable branch.
+  v7.1-rc7; both fixes remain present.  The `netdev/net.git` queue
+  carries unrelated RDS fixes (NULL-deref and cleanup bugs); none
+  touches the zerocopy double-free or names PinTheft's `Fixes:` commit,
+  and none has reached a stable branch.
 - linux-6.19.y confirmed present in the stable clone with latest tag
   v6.19.14 (2026-04-22) — a short-lived non-LTS stable between 6.18 LTS
   and 7.0, now EOL and no longer listed on kernel.org.  Neither
@@ -508,7 +507,7 @@ echo 1 > /proc/sys/vm/drop_caches
   v6.18.33, `0bbbff00a15b` first in v6.12.91, `9115669faedc` first in
   v6.6.141, `d84ce1786ce4` first in v6.1.175, `03014551938a` first in
   v5.15.209, `c6e51512a784` first in v5.10.258.  Current point releases:
-  7.0.11, 6.18.34, 6.12.92, 6.6.142, 6.1.175, 5.15.209, 5.10.258 — all
+  7.0.12, 6.18.35, 6.12.93, 6.6.142, 6.1.175, 5.15.209, 5.10.258 — all
   fully fixed (confirmed via `stable/linux.git` log).
 - Introducing commit `0cebaccef3ac` ("rds: zerocopy Tx support.")
   confirmed first released in v4.17 — every supported stable branch
@@ -542,17 +541,18 @@ echo 1 > /proc/sys/vm/drop_caches
   the fixed packages: proxmox-kernel-7.0.2-5-pve and
   proxmox-kernel-6.17.13-10-pve for PVE 9, and
   proxmox-kernel-6.8.12-25-pve for PVE 8.
-- **NixOS:** both channels now pin fixed kernel versions: `nixos-unstable`
-  pins `linux_6_18` 6.18.33 (first pinned at channel rev `64c08a7ca051`,
-  2026-05-23; re-verified unchanged at current channel rev
-  `331800de5053`; both fixes confirmed in upstream 6.18.y branch) and
-  `nixos-25.11` pins `linux_6_12` 6.12.92 (channel rev `535f3e6942cb`;
-  first fixed at channel rev `25f538306313` with 6.12.91, 2026-05-26;
-  both fixes confirmed in upstream 6.12.y branch).  Kernel versions
-  verified via local nixpkgs clone at the respective channel revisions
-  (`pkgs/os-specific/linux/kernel/kernels-org.json`).
-  `boot.modprobeConfig.useUbuntuModuleBlacklist` default confirmed `true`
-  at both channel revisions in `nixos/modules/system/boot/modprobe.nix`.
+- **NixOS:** both channels pin fixed kernel versions, tracked at the
+  first-fixed pin rather than the rolling channel head: `nixos-unstable`
+  pins `linux_6_18` 6.18.33, first fixed at channel rev `64c08a7ca051`
+  (2026-05-23); `nixos-25.11` pins `linux_6_12` 6.12.92, first fixed at
+  channel rev `25f538306313` with 6.12.91 (2026-05-26).  Both fixes
+  confirmed in the upstream 6.18.y / 6.12.y branches; kernel versions
+  verified via the local nixpkgs clone
+  (`pkgs/os-specific/linux/kernel/kernels-org.json`).  Later channel
+  revisions roll these to newer already-fixed kernels (e.g. unstable to
+  6.18.34) — no status change.
+  `boot.modprobeConfig.useUbuntuModuleBlacklist` defaults to `true`,
+  confirmed in `nixos/modules/system/boot/modprobe.nix`.
 - **Rocky Linux:** `# CONFIG_RDS is not set` confirmed for Rocky 8, 9,
   and 10 against the Rocky kernel configs in git.rockylinux.org
   (branches `r8` / `r9` / `r10`) — not affected.
@@ -580,7 +580,7 @@ echo 1 > /proc/sys/vm/drop_caches
 - **EPSS:** both CVEs now scored (via FIRST.org EPSS API).  CVE-2026-43494
   first scored 2026-05-21; CVE-2026-43502 first scored 2026-05-22.  Current
   score 0.000130 (0.013%) first appeared 2026-05-30 for both — percentile
-  2.08% for CVE-2026-43494, 2.43% for CVE-2026-43502 (score unchanged;
+  2.08% for CVE-2026-43494, 2.41% for CVE-2026-43502 (score unchanged;
   percentile shifted slightly with daily re-scoring).  Summary table
   updated from "not yet" to current values.
 
