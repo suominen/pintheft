@@ -144,6 +144,21 @@ something the Roboto faces can't supply — only weights Roboto ships
   is reader-facing caveats (exploitability, mitigation posture) — keep
   tracking methodology (which distros are reference-only, how channels
   are structured) in this file, not the tracker.
+- **NixOS channel rows track the first-fixed pin, not the rolling
+  channel head.**  Once a channel pins a fixed kernel, record that
+  version with the date / channel-rev where it first appeared, and
+  leave the row there.  When the channel later rolls forward to a newer
+  *already-fixed* kernel (e.g. `nixos-unstable` 6.18.33 → 6.18.34), the
+  tracked fact — "fixed since" — has not changed, so it is a no-op:
+  don't advance the row's version or date, don't chase the channel-rev
+  pointer, and don't commit.  The NixOS verification-log bullet anchors
+  on the *first-fixed* channel rev for the same reason — never cite a
+  volatile "current channel rev", which goes stale on the next channel
+  bump.  Only the first-fixed pin itself, or a regression (a channel
+  pinning an *unfixed* kernel), is a real change.  The same first-seen
+  discipline applies to the net.git RDS-queue note: state that the queue
+  carries only unrelated RDS fixes (none PinTheft-related, none in a
+  stable branch) — don't maintain a per-SHA roster that grows every run.
 - When you re-verify entries, update the `## Verification log` section
   in place — bump the `*Last verified <date>.*` line and edit the
   relevant `### Upstream` / `### Distributions` subsection rather than
