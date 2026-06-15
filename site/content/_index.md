@@ -24,7 +24,7 @@ cover:
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
 | KEV listed | not yet |
-| EPSS | CVE-2026-43494: 0.013% (2.09th percentile); CVE-2026-43502: 0.013% (2.40th percentile) — scored 2026-06-14 |
+| EPSS | CVE-2026-43494: 0.21% (11.18th percentile); CVE-2026-43502: 0.123% (2.40th percentile) — scored 2026-06-15 |
 
 An unprivileged local user can obtain root on a kernel that exposes the
 RDS (Reliable Datagram Sockets) subsystem.  The bug is a reference-count
@@ -582,10 +582,10 @@ echo 1 > /proc/sys/vm/drop_caches
 - **Fedora:** module-availability behaviour per the V12 disclosure and the
   oss-security thread; not independently re-verified.
 - **EPSS:** both CVEs now scored (via FIRST.org EPSS API).  CVE-2026-43494
-  first scored 2026-05-21; CVE-2026-43502 first scored 2026-05-22.  Current
-  score 0.000130 (0.013%) unchanged; percentile 2.09% for CVE-2026-43494
-  (shifted from 2.08%), 2.40% for CVE-2026-43502 (unchanged) — as of
-  2026-06-14.
+  first scored 2026-05-21; CVE-2026-43502 first scored 2026-05-22.
+  CVE-2026-43494: 0.21% (11.18th percentile), up from 0.013% (2.09th
+  percentile) on 2026-06-14; CVE-2026-43502: 0.123% (2.40th percentile),
+  up from 0.013% on 2026-06-14 — as of 2026-06-15.
 
 ## References
 
