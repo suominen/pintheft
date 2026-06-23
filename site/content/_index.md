@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-22
+lastmod: 2026-06-23
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -252,7 +252,7 @@ Amazon builds the RDS subsystem as a loadable module — `CONFIG_RDS=m`,
 
 | Stream | Kernel series | Status |
 |---|---|---|
-| `kernel` (default) | 6.1.x  | :warning: Partial fix — [ALAS2023-2026-1752][alas-2023-1752] (2026-05-26); `e17492979319` backported to 6.1.172-216.329; `44b550d88b26` not in any ALAS advisory |
+| `kernel` (default) | 6.1.x  | :white_check_mark: Fixed — [ALAS2023-2026-1752][alas-2023-1752] (2026-05-26) + [ALAS2023-2026-1882][alas-2023-1882] (2026-06-22); both fixes in 6.1.175-219.357 |
 | `kernel6.12` | 6.12.x | :white_check_mark: Fixed — [ALAS2023-2026-1753][alas-2023-1753] (2026-05-26); both fixes in 6.12.88-119.157 (`44b550d88b26` in upstream 6.12.88; `e17492979319` backported) |
 | `kernel6.18` | 6.18.x | :white_check_mark: Fixed — [ALAS2023-2026-1754][alas-2023-1754] (2026-05-26); both fixes in 6.18.30-61.116 (`44b550d88b26` in upstream 6.18.30; `e17492979319` backported) |
 
@@ -263,19 +263,24 @@ Amazon builds the RDS subsystem as a loadable module — `CONFIG_RDS=m`,
 | `kernel` (Core) | 4.14.x | :white_check_mark: Not affected — RDS is `=m`, but 4.14 predates the vulnerable code (see below) |
 | `kernel` (5.4 extra) | 5.4.x | :warning: Partial fix — [ALAS2KERNEL-5.4-2026-124][alas-k54-124] (2026-05-26); `e17492979319` backported to 5.4.302-224.473; `44b550d88b26` not in upstream 5.4.y or any ALAS |
 | `kernel` (5.10 extra) | 5.10.x | :warning: Partial fix — [ALAS2KERNEL-5.10-2026-120][alas-k510-120] (2026-05-26); `e17492979319` backported to 5.10.255-253.1008; `44b550d88b26` not in any ALAS |
-| `kernel` (5.15 extra) | 5.15.x | :warning: Partial fix — [ALAS2KERNEL-5.15-2026-104][alas-k515-104] (2026-05-26); `e17492979319` backported to 5.15.206-144.232; `44b550d88b26` not in any ALAS |
+| `kernel` (5.15 extra) | 5.15.x | :white_check_mark: Fixed — [ALAS2KERNEL-5.15-2026-104][alas-k515-104] (2026-05-26) + [ALAS2KERNEL-5.15-2026-107][alas-k515-107] (2026-06-22); both fixes in 5.15.209-147.245 |
 
 Amazon issued ALAS advisories for all affected streams on 2026-05-26,
-addressing CVE-2026-43494 (`e17492979319`, fix part 2).  No advisory
-exists for CVE-2026-43502 (`44b550d88b26`, fix part 1).
+addressing CVE-2026-43494 (`e17492979319`, fix part 2).  On 2026-06-22,
+Amazon issued [ALAS2023-2026-1882][alas-2023-1882] and
+[ALAS2KERNEL-5.15-2026-107][alas-k515-107] addressing CVE-2026-43502
+(`44b550d88b26`, fix part 1) for the AL2023 `kernel` (6.1.x) and AL2
+5.15 extra streams respectively.
 
 `kernel6.12` and `kernel6.18` are fully fixed: their upstream base
 versions (6.12.88, 6.18.30) already carry fix part 1, and Amazon's
-advisory adds fix part 2 on top.  The `kernel` (6.1.x) and all AL2
-5.x extra streams have an incomplete fix — only fix part 2 is confirmed
-applied; fix part 1 is absent from both the upstream base version and
-any ALAS advisory.  On those streams, the cleanup-path restructuring in
-`rds_message_purge()` from `44b550d88b26` has not been applied.
+advisory adds fix part 2 on top.  The AL2023 `kernel` (6.1.x) and AL2
+5.15 extra streams are now also fully fixed: both 2026-06-22 advisories
+bring the upstream base to a version (6.1.175, 5.15.209) that carries
+fix part 1, completing the fix.  The AL2 5.4 and 5.10 extra streams
+have an incomplete fix — only fix part 2 is confirmed applied; fix
+part 1 is absent from both the upstream base version and any ALAS
+advisory.
 
 Amazon Linux 2's default **Core** kernel is 4.14, which predates the RDS
 zerocopy Tx support (`0cebaccef3ac`, first released in v4.17) and
@@ -475,7 +480,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-22.*
+*Last verified 2026-06-23.*
 
 ### Upstream
 
@@ -566,13 +571,16 @@ echo 1 > /proc/sys/vm/drop_caches
   issued 2026-05-26 for all affected streams (CVE-2026-43494 formally added
   to advisories 2026-06-03); fixed packages: AL2023 `kernel` 6.1.172-216.329,
   `kernel6.12` 6.12.88-119.157, `kernel6.18` 6.18.30-61.116; AL2 5.4
-  5.4.302-224.473, 5.10 5.10.255-253.1008, 5.15 5.15.206-144.232.  All
-  advisories list CVE-2026-43494 only; no ALAS for CVE-2026-43502.
-  `kernel6.12` and `kernel6.18` are fully fixed (upstream 6.12.88 and
-  6.18.30 carry fix part 1; advisory adds fix part 2).  `kernel` (6.1.x)
-  and all AL2 5.x extras have only fix part 2 confirmed — fix part 1 absent
-  from upstream base and no ALAS (verified via explore.alas.aws.amazon.com
-  and advisory pages).
+  5.4.302-224.473, 5.10 5.10.255-253.1008, 5.15 5.15.206-144.232.  The
+  2026-05-26 advisories list CVE-2026-43494 only.  `kernel6.12` and
+  `kernel6.18` are fully fixed (upstream 6.12.88 and 6.18.30 carry fix
+  part 1; advisory adds fix part 2).  On 2026-06-22, ALAS2023-2026-1882
+  added CVE-2026-43502 for AL2023 `kernel` (6.1.x) with 6.1.175-219.357
+  (upstream 6.1.175 carries fix part 1), completing the fix; and
+  ALAS2KERNEL-5.15-2026-107 did the same for AL2 5.15 extra with
+  5.15.209-147.245 (upstream 5.15.209 carries fix part 1).  AL2 5.4 and
+  5.10 extras still have only fix part 2 confirmed — fix part 1 absent
+  from upstream base and no ALAS (verified via explore.alas.aws.amazon.com).
 - **Arch Linux:** `linux` 7.0.10.arch1-1 (both fixes — `44b550d88b26`
   and `e17492979319`) graduated from [testing] to stable (core) on
   2026-05-24; confirmed via the Arch packages page (built 2026-05-23,
@@ -619,6 +627,8 @@ echo 1 > /proc/sys/vm/drop_caches
 | [ALAS2KERNEL-5.4-2026-124 — Amazon Linux 2 kernel 5.4 advisory][alas-k54-124] | <https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.4-2026-124.html> |
 | [ALAS2KERNEL-5.10-2026-120 — Amazon Linux 2 kernel 5.10 advisory][alas-k510-120] | <https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.10-2026-120.html> |
 | [ALAS2KERNEL-5.15-2026-104 — Amazon Linux 2 kernel 5.15 advisory][alas-k515-104] | <https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.15-2026-104.html> |
+| [ALAS2023-2026-1882 — Amazon Linux 2023 kernel advisory (CVE-2026-43502)][alas-2023-1882] | <https://alas.aws.amazon.com/AL2023/ALAS2023-2026-1882.html> |
+| [ALAS2KERNEL-5.15-2026-107 — Amazon Linux 2 kernel 5.15 advisory (CVE-2026-43502)][alas-k515-107] | <https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.15-2026-107.html> |
 {.references}
 
 [upstream-repo]:    https://github.com/v12-security/pocs/tree/09e835b587bf71249775654061ae4c79e92cf430/pintheft
@@ -649,3 +659,5 @@ echo 1 > /proc/sys/vm/drop_caches
 [alas-k54-124]:     https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.4-2026-124.html
 [alas-k510-120]:    https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.10-2026-120.html
 [alas-k515-104]:    https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.15-2026-104.html
+[alas-2023-1882]:   https://alas.aws.amazon.com/AL2023/ALAS2023-2026-1882.html
+[alas-k515-107]:    https://alas.aws.amazon.com/AL2/ALAS2KERNEL-5.15-2026-107.html
