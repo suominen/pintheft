@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-26
+lastmod: 2026-06-27
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -24,7 +24,7 @@ cover:
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
 | KEV listed | not yet |
-| EPSS | CVE-2026-43494: 0.257% (16.97th percentile); CVE-2026-43502: 0.123% (2.42nd percentile) — scored 2026-06-26 |
+| EPSS | CVE-2026-43494: 0.272% (18.99th percentile); CVE-2026-43502: 0.123% (2.43rd percentile) — scored 2026-06-27 |
 
 An unprivileged local user can obtain root on a kernel that exposes the
 RDS (Reliable Datagram Sockets) subsystem.  The bug is a reference-count
@@ -84,11 +84,11 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 
 | Branch | Status | Current | Notes |
 |---|---|---|---|
-| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1.1 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; released 2026-06-14 |
-| 7.1.x  | :white_check_mark: Fixed | 7.1.1  | both fixes present from initial 7.1 release (2026-06-14) — `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4 |
-| 7.0.x  | :white_check_mark: Fixed | 7.0.13   | both fixes backported — fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10 |
-| 6.19.x | :x: Vulnerable — EOL | 6.19.14 (EOL) | Non-LTS stable; EOL 2026-04-22 — neither fix backported before EOL; users should upgrade to 7.0 |
-| 6.18.x | :white_check_mark: Fixed | 6.18.36  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
+| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1.2 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; released 2026-06-14 |
+| 7.1.x  | :white_check_mark: Fixed | 7.1.2  | both fixes present from initial 7.1 release (2026-06-14) — `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4 |
+| 7.0.x  | :white_check_mark: Fixed — EOL 2026-06-27 | 7.0.14 (EOL) | Non-LTS stable; EOL 2026-06-27 — both fixes backported; fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10; upgrade to 7.1 |
+| 6.19.x | :x: Vulnerable — EOL | 6.19.14 (EOL) | Non-LTS stable; EOL 2026-04-22 — neither fix backported before EOL; users should upgrade to 7.1 |
+| 6.18.x | :white_check_mark: Fixed | 6.18.37  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `14ef6fd18db2`) first in v6.18.30; fix part 2 (`e17492979319`, stable `640e37f58f99`) first in v6.18.33 |
 | 6.12.x | :white_check_mark: Fixed | 6.12.94  | LTS 2028-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `3abc8983b2ba`) first in v6.12.88; fix part 2 (`e17492979319`, stable `0bbbff00a15b`) first in v6.12.91 |
 | 6.6.x  | :white_check_mark: Fixed | 6.6.143  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `21d70744e6d3`) first in v6.6.140; fix part 2 (`e17492979319`, stable `9115669faedc`) first in v6.6.141 |
 | 6.1.x  | :white_check_mark: Fixed | 6.1.176  | LTS 2026-12 — both fixes backported; fix part 1 (`44b550d88b26`, stable `1e262db7675e`) first in v6.1.175; fix part 2 (`e17492979319`, stable `d84ce1786ce4`) first in v6.1.175 |
@@ -98,13 +98,14 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 RDS zero-copy Tx support landed in v4.17, so every branch above carries
 the vulnerable code.  Both fixes landed in mainline 7.1 (released
 2026-06-14) and have backported to all actively maintained older stable
-branches: 7.0.y, 6.18.y, 6.12.y, 6.6.y, 6.1.y, 5.15.y, and 5.10.y
-(see Notes column), making all those branches fully fixed as of their
-latest point releases.  The 7.1.y tracking branch carries both fixes
-from the initial release.  The 6.19.y branch reached EOL on 2026-04-22
-(v6.19.14) before the fixes were backported — it was a short-lived
-non-LTS stable between 6.18 LTS and 7.0 and is no longer listed on
-kernel.org.
+branches: 6.18.y, 6.12.y, 6.6.y, 6.1.y, 5.15.y, and 5.10.y (see
+Notes column), making all those branches fully fixed as of their latest
+point releases.  The 7.1.y tracking branch carries both fixes from the
+initial release.  The 7.0.y branch (non-LTS, EOL 2026-06-27 at
+v7.0.14) also carries both fixes, backported before EOL.  The 6.19.y
+branch reached EOL on 2026-04-22 (v6.19.14) before the fixes were
+backported — it was a short-lived non-LTS stable between 6.18 LTS and
+7.0 and is no longer listed on kernel.org.
 
 ## Distribution status
 
@@ -484,7 +485,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-26.*
+*Last verified 2026-06-27.*
 
 ### Upstream
 
@@ -520,8 +521,9 @@ echo 1 > /proc/sys/vm/drop_caches
   v6.18.33, `0bbbff00a15b` first in v6.12.91, `9115669faedc` first in
   v6.6.141, `d84ce1786ce4` first in v6.1.175, `03014551938a` first in
   v5.15.209, `c6e51512a784` first in v5.10.258.  Current point releases:
-  7.1.1, 7.0.13, 6.18.36, 6.12.94, 6.6.143, 6.1.176, 5.15.210, 5.10.259
-  — all fully fixed (confirmed via `stable/linux.git` log).
+  7.1.2, 7.0.14 (EOL 2026-06-27), 6.18.37, 6.12.94, 6.6.143, 6.1.176,
+  5.15.210, 5.10.259 — all fully fixed (confirmed via `stable/linux.git`
+  log); 7.0.y declared EOL on 2026-06-27.
 - Introducing commit `0cebaccef3ac` ("rds: zerocopy Tx support.")
   confirmed first released in v4.17 — every supported stable branch
   contains the vulnerable code.
@@ -599,9 +601,9 @@ echo 1 > /proc/sys/vm/drop_caches
   oss-security thread; not independently re-verified.
 - **EPSS:** both CVEs now scored (via FIRST.org EPSS API).  CVE-2026-43494
   first scored 2026-05-21; CVE-2026-43502 first scored 2026-05-22.
-  CVE-2026-43494: 0.257% (16.97th percentile), up from 0.21% (11.12th)
-  on 2026-06-21; CVE-2026-43502: 0.123% (2.42nd percentile) — as of
-  2026-06-26.
+  CVE-2026-43494: 0.272% (18.99th percentile), up from 0.257% (16.97th)
+  on 2026-06-26; CVE-2026-43502: 0.123% (2.43rd percentile) — as of
+  2026-06-27.
 
 ## References
 
