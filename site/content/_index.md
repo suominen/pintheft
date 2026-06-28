@@ -24,7 +24,7 @@ cover:
 | Public disclosure | 2026-05-19 on [oss-security][oss-sec] |
 | Public PoC | [v12-security/pocs][upstream-repo] (`pintheft/poc.c`) |
 | KEV listed | not yet |
-| EPSS | CVE-2026-43494: 0.272% (18.99th percentile); CVE-2026-43502: 0.123% (2.43rd percentile) — scored 2026-06-27 |
+| EPSS | CVE-2026-43494: 0.272% (18.96th percentile); CVE-2026-43502: 0.123% (2.43rd percentile) — scored 2026-06-28 |
 
 An unprivileged local user can obtain root on a kernel that exposes the
 RDS (Reliable Datagram Sockets) subsystem.  The bug is a reference-count
@@ -612,9 +612,9 @@ echo 1 > /proc/sys/vm/drop_caches
   oss-security thread; not independently re-verified.
 - **EPSS:** both CVEs now scored (via FIRST.org EPSS API).  CVE-2026-43494
   first scored 2026-05-21; CVE-2026-43502 first scored 2026-05-22.
-  CVE-2026-43494: 0.272% (18.99th percentile), up from 0.257% (16.97th)
+  CVE-2026-43494: 0.272% (18.96th percentile), up from 0.257% (16.97th)
   on 2026-06-26; CVE-2026-43502: 0.123% (2.43rd percentile) — as of
-  2026-06-27.
+  2026-06-28.
 
 ## References
 
