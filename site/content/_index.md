@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-27
+lastmod: 2026-06-28
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -129,7 +129,7 @@ Debian ships the RDS subsystem as a module (`CONFIG_RDS=m`,
 
 | Release | RDS | Status |
 |---|---|---|
-| Debian 13 (trixie) | `CONFIG_RDS=m` | :white_check_mark: Fixed — linux 6.12.90-2 (trixie-security); [DSA-6305-1][dsa-6305] issued 2026-05-28 |
+| Debian 13 (trixie) | `CONFIG_RDS=m` | :white_check_mark: Fixed — [DSA-6305-1][dsa-6305] linux 6.12.90-2 (2026-05-28) covers CVE-2026-43494; [DSA-6355-1][dsa-6355] linux 6.12.94-1 (2026-06-27) formal fix for CVE-2026-43502 |
 | Debian 12 (bookworm) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
 | Debian 11 (bullseye) | `CONFIG_RDS=m` | :warning: Mitigated, not fixed — kernel patch blocks unprivileged RDS autoload; double-free unpatched |
 
@@ -147,13 +147,19 @@ kernel binary.  The patch is present in the kernel `series` of every
 tracked suite (`debian/latest` for sid/forky, and the trixie, bookworm,
 and bullseye security branches).
 
-[DSA-6305-1][dsa-6305] (2026-05-28) brought a full kernel patch to
-trixie with linux 6.12.90-2 (trixie-security pocket); both fix commits
-are applied.  Bookworm and bullseye remain unpatched — the double-free
-in `net/rds/message.c` is still built and is exploitable on those hosts
-once `rds` is loaded by other means (an administrator `modprobe`, or a
-workload that uses RDS).  The [Debian security tracker][debian-cve]
-lists bookworm and bullseye as vulnerable.
+[DSA-6305-1][dsa-6305] (2026-05-28) brought a kernel patch to trixie
+with linux 6.12.90-2 (trixie-security pocket); the advisory explicitly
+covers CVE-2026-43494 (fix part 2, `e17492979319`); fix part 1
+(`44b550d88b26`) was already present in the upstream 6.12.90 base
+(first in v6.12.88), so 6.12.90-2 is fully protected against both
+PinTheft CVEs.  [DSA-6355-1][dsa-6355] (2026-06-27) updated trixie to
+linux 6.12.94-1 (trixie-security); the Debian security tracker records
+CVE-2026-43502 (fix part 1) as fixed at this version.  Bookworm and
+bullseye remain unpatched — the double-free in `net/rds/message.c` is
+still built and is exploitable on those hosts once `rds` is loaded by
+other means (an administrator `modprobe`, or a workload that uses RDS).
+The [Debian security tracker][debian-cve] lists bookworm and bullseye
+as vulnerable.
 
 ### Proxmox Virtual Environment
 
@@ -485,7 +491,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-27.*
+*Last verified 2026-06-28.*
 
 ### Upstream
 
@@ -536,13 +542,18 @@ echo 1 > /proc/sys/vm/drop_caches
   out in `net/rds/af_rds.c`) was confirmed present in the kernel patch
   `series` of the `debian/latest` (sid/forky), trixie, bookworm, and
   bullseye branches on Salsa.  [DSA-6305-1][dsa-6305] (2026-05-28)
-  fixed trixie with linux 6.12.90-2 (trixie-security pocket); both fix
-  patches confirmed via the Debian security tracker.  [DSA-6306-1]
-  (2026-05-28) fixed bookworm at linux 6.1.174-1 (for CVE-2026-43503,
-  CVE-2026-46174, CVE-2026-46300 — not CVE-2026-43494), confirming
-  bookworm remains unpatched for PinTheft (fix requires 6.1.175+).
-  Bullseye remains unpatched; the Debian security tracker lists both
-  bookworm and bullseye as vulnerable.
+  fixed trixie with linux 6.12.90-2 (trixie-security pocket);
+  explicitly covers CVE-2026-43494 (fix part 2, `e17492979319`); fix
+  part 1 (`44b550d88b26`) was already in the upstream 6.12.90 base
+  (first in v6.12.88), so 6.12.90-2 is fully protected against both
+  PinTheft CVEs.  [DSA-6355-1][dsa-6355] (2026-06-27) updated trixie
+  to linux 6.12.94-1 (trixie-security); the Debian security tracker
+  records CVE-2026-43502 (fix part 1) as fixed at 6.12.94-1.
+  [DSA-6306-1] (2026-05-28) fixed bookworm at linux 6.1.174-1 (for
+  CVE-2026-43503, CVE-2026-46174, CVE-2026-46300 — not
+  CVE-2026-43494), confirming bookworm remains unpatched for PinTheft
+  (fix requires 6.1.175+).  Bullseye remains unpatched; the Debian
+  security tracker lists both bookworm and bullseye as vulnerable.
 - **Proxmox VE:** `CONFIG_RDS=m` confirmed for PVE 9.  Verified on a
   running PVE 9 host (`proxmox-kernel` 6.17.x) that no autoload block is
   present: `modinfo` on `rds.ko` shows `alias: net-pf-21` intact (no
@@ -630,6 +641,7 @@ echo 1 > /proc/sys/vm/drop_caches
 | [CVE-2026-43502 — NVD record][cve-43502-nvd] | <https://nvd.nist.gov/vuln/detail/CVE-2026-43502> |
 | [CVE-2026-43502 — Debian security tracker][debian-cve-43502] | <https://security-tracker.debian.org/tracker/CVE-2026-43502> |
 | [DSA-6305-1 — linux security update (2026-05-28)][dsa-6305] | <https://www.debian.org/security/2026/dsa-6305> |
+| [DSA-6355-1 — linux security update (2026-06-27)][dsa-6355] | <https://www.debian.org/security/2026/dsa-6355> |
 | [oss-security — CVE-2026-43494 assignment (2026-05-21)][oss-sec-cve] | <https://www.openwall.com/lists/oss-security/2026/05/21/2> |
 | [ALAS2023-2026-1752 — Amazon Linux 2023 kernel advisory][alas-2023-1752] | <https://alas.aws.amazon.com/AL2023/ALAS2023-2026-1752.html> |
 | [ALAS2023-2026-1753 — Amazon Linux 2023 kernel6.12 advisory][alas-2023-1753] | <https://alas.aws.amazon.com/AL2023/ALAS2023-2026-1753.html> |
@@ -663,6 +675,7 @@ echo 1 > /proc/sys/vm/drop_caches
 [cve-43502-nvd]:    https://nvd.nist.gov/vuln/detail/CVE-2026-43502
 [debian-cve-43502]: https://security-tracker.debian.org/tracker/CVE-2026-43502
 [dsa-6305]:         https://www.debian.org/security/2026/dsa-6305
+[dsa-6355]:         https://www.debian.org/security/2026/dsa-6355
 [oss-sec-cve]:      https://www.openwall.com/lists/oss-security/2026/05/21/2
 [alas-2023-1752]:   https://alas.aws.amazon.com/AL2023/ALAS2023-2026-1752.html
 [alas-2023-1753]:   https://alas.aws.amazon.com/AL2023/ALAS2023-2026-1753.html
