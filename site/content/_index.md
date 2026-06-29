@@ -3,7 +3,7 @@ title: "CVE-2026-43494 / CVE-2026-43502 — PinTheft tracking"
 description: "Linux kernel RDS zerocopy double-free → io_uring page-cache overwrite LPE — distro patch status tracker"
 layout: "single"
 date: 2026-05-20
-lastmod: 2026-06-28
+lastmod: 2026-06-29
 cover:
   image: "pintheft-tracker.png"
   alt: "CVE-2026-43494 / CVE-2026-43502 — PinTheft RDS zerocopy double-free → io_uring page-cache overwrite LPE tracker"
@@ -84,7 +84,7 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 
 | Branch | Status | Current | Notes |
 |---|---|---|---|
-| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.1.2 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; released 2026-06-14 |
+| Linus mainline | :white_check_mark: Present by 7.1-rc4 | 7.2-rc1 | `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4; 7.2-rc1 is current mainline |
 | 7.1.x  | :white_check_mark: Fixed | 7.1.2  | both fixes present from initial 7.1 release (2026-06-14) — `44b550d88b26` in 7.1-rc3, `e17492979319` in 7.1-rc4 |
 | 7.0.x  | :white_check_mark: Fixed — EOL 2026-06-27 | 7.0.14 (EOL) | Non-LTS stable; EOL 2026-06-27 — both fixes backported; fix part 1 (`44b550d88b26`, stable `0f5c185fc79a`) first in v7.0.7; fix part 2 (`e17492979319`, stable `290e833d1acb`) first in v7.0.10; upgrade to 7.1 |
 | 6.19.x | :x: Vulnerable — EOL | 6.19.14 (EOL) | Non-LTS stable; EOL 2026-04-22 — neither fix backported before EOL; users should upgrade to 7.1 |
@@ -97,15 +97,16 @@ both — verifying only the presence of `44b550d88b26` is insufficient.
 
 RDS zero-copy Tx support landed in v4.17, so every branch above carries
 the vulnerable code.  Both fixes landed in mainline 7.1 (released
-2026-06-14) and have backported to all actively maintained older stable
-branches: 6.18.y, 6.12.y, 6.6.y, 6.1.y, 5.15.y, and 5.10.y (see
-Notes column), making all those branches fully fixed as of their latest
-point releases.  The 7.1.y tracking branch carries both fixes from the
-initial release.  The 7.0.y branch (non-LTS, EOL 2026-06-27 at
-v7.0.14) also carries both fixes, backported before EOL.  The 6.19.y
-branch reached EOL on 2026-04-22 (v6.19.14) before the fixes were
-backported — it was a short-lived non-LTS stable between 6.18 LTS and
-7.0 and is no longer listed on kernel.org.
+2026-06-14); 7.2-rc1 is current mainline.  The fixes have backported to
+all actively maintained older stable branches: 6.18.y, 6.12.y, 6.6.y,
+6.1.y, 5.15.y, and 5.10.y (see Notes column), making all those
+branches fully fixed as of their latest point releases.  The 7.1.y
+tracking branch carries both fixes from the initial release.  The 7.0.y
+branch (non-LTS, EOL 2026-06-27 at v7.0.14) also carries both fixes,
+backported before EOL.  The 6.19.y branch reached EOL on 2026-04-22
+(v6.19.14) before the fixes were backported — it was a short-lived
+non-LTS stable between 6.18 LTS and 7.0 and is no longer listed on
+kernel.org.
 
 ## Distribution status
 
@@ -491,7 +492,7 @@ echo 1 > /proc/sys/vm/drop_caches
 
 ## Verification log
 
-*Last verified 2026-06-28.*
+*Last verified 2026-06-29.*
 
 ### Upstream
 
@@ -508,11 +509,12 @@ echo 1 > /proc/sys/vm/drop_caches
 - Both fix commits verified against the local `netdev/net.git` and
   `stable/linux.git` clones: `44b550d88b26` first appears in tag
   `v7.1-rc3`, `e17492979319` in `v7.1-rc4`.  Mainline 7.1 released
-  2026-06-14; the linux-7.1.y stable tracking branch is at v7.1 with
-  both fixes present from the initial release.  The `netdev/net.git`
-  queue carries unrelated RDS fixes (NULL-deref and cleanup bugs); none
-  touches the zerocopy double-free or names PinTheft's `Fixes:` commit,
-  and none has reached a stable branch.
+  2026-06-14; 7.2-rc1 is current mainline; the linux-7.1.y stable
+  tracking branch is at v7.1.2 with both fixes present from the initial
+  release.  The `netdev/net.git` queue carries unrelated RDS fixes
+  (NULL-deref and cleanup bugs); none touches the zerocopy double-free
+  or names PinTheft's `Fixes:` commit, and none has reached a stable
+  branch.
 - linux-6.19.y confirmed present in the stable clone with latest tag
   v6.19.14 (2026-04-22) — a short-lived non-LTS stable between 6.18 LTS
   and 7.0, now EOL and no longer listed on kernel.org.  Neither
@@ -526,7 +528,7 @@ echo 1 > /proc/sys/vm/drop_caches
   stable hash `290e833d1acb` first in v7.0.10, `640e37f58f99` first in
   v6.18.33, `0bbbff00a15b` first in v6.12.91, `9115669faedc` first in
   v6.6.141, `d84ce1786ce4` first in v6.1.175, `03014551938a` first in
-  v5.15.209, `c6e51512a784` first in v5.10.258.  Current point releases:
+  v5.15.209, `c6e51512a784` first in v5.10.258.  Current point releases: mainline 7.2-rc1, stable
   7.1.2, 7.0.14 (EOL 2026-06-27), 6.18.37, 6.12.94, 6.6.143, 6.1.176,
   5.15.210, 5.10.259 — all fully fixed (confirmed via `stable/linux.git`
   log); 7.0.y declared EOL on 2026-06-27.
